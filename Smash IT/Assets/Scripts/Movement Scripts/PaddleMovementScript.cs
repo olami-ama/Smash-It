@@ -47,7 +47,7 @@ public class PaddleMovementScript : MonoBehaviour
 
         // for Mobile input
 
-        foreach (Touch touch in Input.touches) //
+        foreach (Touch touch in Input.touches) 
         {
             // Only respond to touches on your half of the screen
             if (isBottomPaddle && touch.position.y > Screen.height / 2) continue; // checks if it the bottom or top screen to get touches from the phone

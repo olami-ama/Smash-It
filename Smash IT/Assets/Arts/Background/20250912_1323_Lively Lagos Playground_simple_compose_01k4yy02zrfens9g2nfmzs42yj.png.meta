@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 53ce95d39b8499749ad4972a44e58334
+guid: 7aa552891aa41264b87fb9d6765d356e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5659682115573864846
-    second: 20250819_2017_Nigerian-Inspired Sports Hall_remix_01k31w2yc5ejc805s6my4adj0s_0
+      213: -3156227539876288822
+    second: 20250912_1323_Lively Lagos Playground_simple_compose_01k4yy02zrfens9g2nfmzs42yj_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -97,6 +97,19 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
     buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -113,7 +126,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 20250819_2017_Nigerian-Inspired Sports Hall_remix_01k31w2yc5ejc805s6my4adj0s_0
+      name: 20250912_1323_Lively Lagos Playground_simple_compose_01k4yy02zrfens9g2nfmzs42yj_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 276a6972a15c471b0800000000000000
-      internalID: -5659682115573864846
+      spriteID: ac66e5f56c3d234d0800000000000000
+      internalID: -3156227539876288822
       vertices: []
       indices: 
       edges: []
@@ -148,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      20250819_2017_Nigerian-Inspired Sports Hall_remix_01k31w2yc5ejc805s6my4adj0s_0: -5659682115573864846
+      20250912_1323_Lively Lagos Playground_simple_compose_01k4yy02zrfens9g2nfmzs42yj_0: -3156227539876288822
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

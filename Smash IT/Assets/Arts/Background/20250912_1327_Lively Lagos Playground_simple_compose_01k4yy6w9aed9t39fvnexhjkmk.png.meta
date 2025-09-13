@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c8c5821b377d2f840bcb716544a27ab8
+guid: 73a2e4b384c0ab94d9ca1d4c3e633bb6
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7163363349393708063
-    second: ChatGPT Image Aug 18, 2025, 05_01_34 PM_0
+      213: 1118232823959605334
+    second: 20250912_1327_Lively Lagos Playground_simple_compose_01k4yy6w9aed9t39fvnexhjkmk_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -48,7 +48,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -97,6 +97,19 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
     buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -113,7 +126,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ChatGPT Image Aug 18, 2025, 05_01_34 PM_0
+      name: 20250912_1327_Lively Lagos Playground_simple_compose_01k4yy6w9aed9t39fvnexhjkmk_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f141aad5301696360800000000000000
-      internalID: 7163363349393708063
+      spriteID: 6505b4824d2c48f00800000000000000
+      internalID: 1118232823959605334
       vertices: []
       indices: 
       edges: []
@@ -148,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ChatGPT Image Aug 18, 2025, 05_01_34 PM_0: 7163363349393708063
+      20250912_1327_Lively Lagos Playground_simple_compose_01k4yy6w9aed9t39fvnexhjkmk_0: 1118232823959605334
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

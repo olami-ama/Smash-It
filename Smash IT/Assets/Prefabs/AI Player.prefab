@@ -13,13 +13,13 @@ GameObject:
   - component: {fileID: 5601200825154529117}
   - component: {fileID: 126369902465238830}
   - component: {fileID: 5988760224027546496}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: AI Player
   m_TagString: AI player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5408327382481457490
 Transform:
   m_ObjectHideFlags: 0
@@ -150,13 +150,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ball: {fileID: 3650288074656444334, guid: ac4dbbd1313d80a48903bbc525ce762a, type: 3}
   ballRb: {fileID: 0}
+  ballMovement: {fileID: 0}
   moveSpeed: 5
-  horizontalOnly: 1
+  serveDistance: 1.5
+  smoothness: 3
   leftLimit: -7
   rightLimit: 7
   bottomLimit: -4
   topLimit: 4
-  ballMovement: {fileID: 0}
 --- !u!50 &5988760224027546496
 Rigidbody2D:
   serializedVersion: 5

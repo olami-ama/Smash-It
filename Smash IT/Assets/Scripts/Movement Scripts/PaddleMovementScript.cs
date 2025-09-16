@@ -2,112 +2,314 @@
 
 public class PaddleMovementScript : MonoBehaviour
 {
-    public float moveSpeed = 15f;                // Paddle speed 
+    public float moveSpeed = 15f; // Paddle speed
 
-    private KeyCode upKey;                       // Key for moving up
-    private KeyCode downKey;                     // Key for moving down
-    private KeyCode leftKey;                     // Key for moving left
-    private KeyCode rightKey;                    // Key for moving right
+    private KeyCode upKey;
+    private KeyCode downKey;
+    private KeyCode leftKey;
+    private KeyCode rightKey;
 
-    private bool isBottomPaddle;                 // True if this is the bottom paddle
-    private float zDistance;                     // Distance from camera to paddle
+    private bool isBottomPaddle;
+    private float zDistance;
+
+    // debug states to avoid spamming every frame
+    private bool prevHadTouch = false;
+    private bool prevHadKeyboard = false;
 
     void Start()
     {
-        // Assign keys based on tag
-        if (CompareTag("Paddle")) // Bottom paddle
+        if (CompareTag("Paddle")) // bottom paddle
         {
-            upKey = KeyCode.W;
-            downKey = KeyCode.S;
-            leftKey = KeyCode.A;
-            rightKey = KeyCode.D;
+            upKey = KeyCode.W; downKey = KeyCode.S; leftKey = KeyCode.A; rightKey = KeyCode.D;
             isBottomPaddle = true;
         }
-        else if (CompareTag("Paddle2")) // Top paddle
+        else if (CompareTag("Paddle2")) // top paddle
         {
-            upKey = KeyCode.UpArrow;
-            downKey = KeyCode.DownArrow;
-            leftKey = KeyCode.LeftArrow;
-            rightKey = KeyCode.RightArrow;
+            upKey = KeyCode.UpArrow; downKey = KeyCode.DownArrow; leftKey = KeyCode.LeftArrow; rightKey = KeyCode.RightArrow;
             isBottomPaddle = false;
         }
+        else
+        {
+            upKey = KeyCode.W; downKey = KeyCode.S; leftKey = KeyCode.A; rightKey = KeyCode.D;
+            isBottomPaddle = true;
+            Debug.LogWarning($"[PaddleMovement] {name} missing Paddle/Paddle2 tag. Defaulting to bottom keys.");
+        }
 
-        // Store z distance from camera (useful for ScreenToWorldPoint)
-        zDistance = Mathf.Abs(Camera.main.transform.position.z - transform.position.z);
+        if (Camera.main != null)
+            zDistance = Mathf.Abs(Camera.main.transform.position.z - transform.position.z);
+        else
+            zDistance = 10f;
+
+        Debug.Log($"[PaddleMovement] {name} Start - isBottom={isBottomPaddle} zDistance={zDistance}");
     }
 
     void Update()
     {
-        Vector3 keyboardMove = Vector3.zero;                 // Movement vector from keyboard
-        Vector3 desiredPos = transform.position;             // The position we will move toward this frame
+        if (Camera.main == null) return;
 
-        // Keyboard input (desktop)
+        Vector3 keyboardMove = Vector3.zero;
+        Vector3 desiredPos = transform.position;
+
         if (Input.GetKey(upKey)) keyboardMove += Vector3.up;
         if (Input.GetKey(downKey)) keyboardMove += Vector3.down;
         if (Input.GetKey(leftKey)) keyboardMove += Vector3.left;
         if (Input.GetKey(rightKey)) keyboardMove += Vector3.right;
 
-        // Screen bounds (used for clamping)
         Vector3 screenBottomLeft = Camera.main.ScreenToWorldPoint(new Vector3(0, 0, zDistance));
         Vector3 screenTopRight = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, zDistance));
+        float midY = (screenBottomLeft.y + screenTopRight.y) * 0.5f;
 
-        // Paddle half extents for clamping
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
-        float halfW = sr.bounds.extents.x;
-        float halfH = sr.bounds.extents.y;
+        SpriteRenderer sr = GetComponent<SpriteRenderer>() ?? GetComponentInChildren<SpriteRenderer>();
+        float halfW = sr != null ? sr.bounds.extents.x : 0.5f;
+        float halfH = sr != null ? sr.bounds.extents.y : 0.5f;
 
-        // TOUCH HANDLING:
-        bool hasTouchTarget = false;                        // Flag: did we find a valid touch for this paddle?
-        Vector3 touchTarget = Vector3.zero;                 // The world position we want to move toward (if any)
+        bool hasTouchTarget = false;
+        Vector3 touchTarget = Vector3.zero;
 
-        foreach (Touch touch in Input.touches)
+        if (Input.touchCount > 0)
         {
-            // Only respond to touches on this paddle's half of the screen
-            if (isBottomPaddle && touch.position.y > Screen.height / 2f) continue;
-            if (!isBottomPaddle && touch.position.y < Screen.height / 2f) continue;
+            foreach (Touch touch in Input.touches)
+            {
+                if (isBottomPaddle && touch.position.y > Screen.height / 2f) continue;
+                if (!isBottomPaddle && touch.position.y < Screen.height / 2f) continue;
+                if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled) continue;
 
-            // Convert touch to world point using the stored zDistance so the z is correct
-            touchTarget = Camera.main.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, zDistance));
-            touchTarget.z = transform.position.z;          // preserve paddle z
-            hasTouchTarget = true;
-            break;                                         // use first matching touch
+                Vector3 world = Camera.main.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, zDistance));
+                world.z = transform.position.z;
+                touchTarget = world;
+                hasTouchTarget = true;
+
+                if (!prevHadTouch)
+                    Debug.Log($"[PaddleMovement] {name} Touch started at screen {touch.position} -> world {world}");
+                prevHadTouch = true;
+                break;
+            }
+        }
+        else
+        {
+            if (Input.GetMouseButton(0))
+            {
+                Vector3 mousePos = Input.mousePosition;
+                if ((isBottomPaddle && mousePos.y <= Screen.height / 2f) || (!isBottomPaddle && mousePos.y >= Screen.height / 2f))
+                {
+                    Vector3 world = Camera.main.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, zDistance));
+                    world.z = transform.position.z;
+                    touchTarget = world;
+                    hasTouchTarget = true;
+
+                    if (!prevHadTouch)
+                        Debug.Log($"[PaddleMovement] {name} Mouse touch at {mousePos} -> world {world}");
+                    prevHadTouch = true;
+                }
+                else prevHadTouch = false;
+            }
+            else
+            {
+                prevHadTouch = false;
+            }
         }
 
         if (hasTouchTarget)
         {
-            // Smoothly move toward the touch point. Lerp reduces snapping with clamping.
-            desiredPos = Vector3.Lerp(transform.position, touchTarget, moveSpeed * Time.deltaTime);
+            desiredPos = Vector3.MoveTowards(transform.position, touchTarget, moveSpeed * Time.deltaTime);
         }
         else if (keyboardMove != Vector3.zero)
         {
-            // Move with keyboard input (frame dependent, simple and responsive)
+            if (!prevHadKeyboard)
+                Debug.Log($"[PaddleMovement] {name} Keyboard input started (dir {keyboardMove})");
+            prevHadKeyboard = true;
             desiredPos += keyboardMove.normalized * moveSpeed * Time.deltaTime;
-        }
-        // else: no input → keep current position
-
-        // Clamp X so paddle stays on screen horizontally
-        desiredPos.x = Mathf.Clamp(desiredPos.x, screenBottomLeft.x + halfW, screenTopRight.x - halfW);
-
-        // Clamp Y to half the screen depending on which paddle this is
-        if (isBottomPaddle)
-        {
-            float upperBound = 0f - halfH; // center y where paddle's top aligns with midline (y = 0)
-            desiredPos.y = Mathf.Clamp(desiredPos.y, screenBottomLeft.y + halfH, upperBound);
         }
         else
         {
-            float lowerBound = 0f + halfH; // center y where paddle's bottom aligns with midline (y = 0)
-            desiredPos.y = Mathf.Clamp(desiredPos.y, lowerBound, screenTopRight.y - halfH);
+            prevHadKeyboard = false;
         }
 
-        // Apply final clamped position
-        transform.position = desiredPos;
+        // Clamp X
+        desiredPos.x = Mathf.Clamp(desiredPos.x, screenBottomLeft.x + halfW, screenTopRight.x - halfW);
+
+        // Clamp Y
+        if (isBottomPaddle)
+        {
+            float lowerBound = screenBottomLeft.y + halfH;
+            float upperBound = midY - halfH;
+            desiredPos.y = Mathf.Clamp(desiredPos.y, lowerBound, upperBound);
+        }
+        else
+        {
+            float lowerBound = midY + halfH;
+            float upperBound = screenTopRight.y - halfH;
+            desiredPos.y = Mathf.Clamp(desiredPos.y, lowerBound, upperBound);
+        }
+
+        // If clamped changed position from previous, log it once
+        if ((Vector2)transform.position != (Vector2)desiredPos)
+        {
+            Debug.Log($"[PaddleMovement] {name} Moving to {desiredPos}");
+            transform.position = desiredPos;
+        }
     }
 }
 
 
 
 /*using UnityEngine;
+
+public class PaddleMovementScript : MonoBehaviour
+{
+    public float moveSpeed = 15f; // Paddle speed
+
+    private KeyCode upKey;
+    private KeyCode downKey;
+    private KeyCode leftKey;
+    private KeyCode rightKey;
+
+    private bool isBottomPaddle;
+    private float zDistance;
+
+    // debug states to avoid spamming every frame
+    private bool prevHadTouch = false;
+    private bool prevHadKeyboard = false;
+
+    void Start()
+    {
+        if (CompareTag("Paddle")) // bottom paddle
+        {
+            upKey = KeyCode.W; downKey = KeyCode.S; leftKey = KeyCode.A; rightKey = KeyCode.D;
+            isBottomPaddle = true;
+        }
+        else if (CompareTag("Paddle2")) // top paddle
+        {
+            upKey = KeyCode.UpArrow; downKey = KeyCode.DownArrow; leftKey = KeyCode.LeftArrow; rightKey = KeyCode.RightArrow;
+            isBottomPaddle = false;
+        }
+        else
+        {
+            upKey = KeyCode.W; downKey = KeyCode.S; leftKey = KeyCode.A; rightKey = KeyCode.D;
+            isBottomPaddle = true;
+            Debug.LogWarning($"[PaddleMovement] {name} missing Paddle/Paddle2 tag. Defaulting to bottom keys.");
+        }
+
+        if (Camera.main != null)
+            zDistance = Mathf.Abs(Camera.main.transform.position.z - transform.position.z);
+        else
+            zDistance = 10f;
+
+        Debug.Log($"[PaddleMovement] {name} Start - isBottom={isBottomPaddle} zDistance={zDistance}");
+    }
+
+    void Update()
+    {
+        if (Camera.main == null) return;
+
+        Vector3 keyboardMove = Vector3.zero;
+        Vector3 desiredPos = transform.position;
+
+        if (Input.GetKey(upKey)) keyboardMove += Vector3.up;
+        if (Input.GetKey(downKey)) keyboardMove += Vector3.down;
+        if (Input.GetKey(leftKey)) keyboardMove += Vector3.left;
+        if (Input.GetKey(rightKey)) keyboardMove += Vector3.right;
+
+        Vector3 screenBottomLeft = Camera.main.ScreenToWorldPoint(new Vector3(0, 0, zDistance));
+        Vector3 screenTopRight = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, zDistance));
+        float midY = (screenBottomLeft.y + screenTopRight.y) * 0.5f;
+
+        SpriteRenderer sr = GetComponent<SpriteRenderer>() ?? GetComponentInChildren<SpriteRenderer>();
+        float halfW = sr != null ? sr.bounds.extents.x : 0.5f;
+        float halfH = sr != null ? sr.bounds.extents.y : 0.5f;
+
+        bool hasTouchTarget = false;
+        Vector3 touchTarget = Vector3.zero;
+
+        if (Input.touchCount > 0)
+        {
+            foreach (Touch touch in Input.touches)
+            {
+                if (isBottomPaddle && touch.position.y > Screen.height / 2f) continue;
+                if (!isBottomPaddle && touch.position.y < Screen.height / 2f) continue;
+                if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled) continue;
+
+                Vector3 world = Camera.main.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, zDistance));
+                world.z = transform.position.z;
+                touchTarget = world;
+                hasTouchTarget = true;
+
+                if (!prevHadTouch)
+                    Debug.Log($"[PaddleMovement] {name} Touch started at screen {touch.position} -> world {world}");
+                prevHadTouch = true;
+                break;
+            }
+        }
+        else
+        {
+            if (Input.GetMouseButton(0))
+            {
+                Vector3 mousePos = Input.mousePosition;
+                if ((isBottomPaddle && mousePos.y <= Screen.height / 2f) || (!isBottomPaddle && mousePos.y >= Screen.height / 2f))
+                {
+                    Vector3 world = Camera.main.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, zDistance));
+                    world.z = transform.position.z;
+                    touchTarget = world;
+                    hasTouchTarget = true;
+
+                    if (!prevHadTouch)
+                        Debug.Log($"[PaddleMovement] {name} Mouse touch at {mousePos} -> world {world}");
+                    prevHadTouch = true;
+                }
+                else prevHadTouch = false;
+            }
+            else
+            {
+                prevHadTouch = false;
+            }
+        }
+
+        if (hasTouchTarget)
+        {
+            desiredPos = Vector3.MoveTowards(transform.position, touchTarget, moveSpeed * Time.deltaTime);
+        }
+        else if (keyboardMove != Vector3.zero)
+        {
+            if (!prevHadKeyboard)
+                Debug.Log($"[PaddleMovement] {name} Keyboard input started (dir {keyboardMove})");
+            prevHadKeyboard = true;
+            desiredPos += keyboardMove.normalized * moveSpeed * Time.deltaTime;
+        }
+        else
+        {
+            prevHadKeyboard = false;
+        }
+
+        // Clamp X
+        desiredPos.x = Mathf.Clamp(desiredPos.x, screenBottomLeft.x + halfW, screenTopRight.x - halfW);
+
+        // Clamp Y
+        if (isBottomPaddle)
+        {
+            float lowerBound = screenBottomLeft.y + halfH;
+            float upperBound = midY - halfH;
+            desiredPos.y = Mathf.Clamp(desiredPos.y, lowerBound, upperBound);
+        }
+        else
+        {
+            float lowerBound = midY + halfH;
+            float upperBound = screenTopRight.y - halfH;
+            desiredPos.y = Mathf.Clamp(desiredPos.y, lowerBound, upperBound);
+        }
+
+        // If clamped changed position from previous, log it once
+        if ((Vector2)transform.position != (Vector2)desiredPos)
+        {
+            Debug.Log($"[PaddleMovement] {name} Moving to {desiredPos}");
+            transform.position = desiredPos;
+        }
+    }
+}
+
+
+
+
+using UnityEngine;
 
 public class PaddleMovementScript : MonoBehaviour
 {

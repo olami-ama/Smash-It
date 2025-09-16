@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: -4637281528938561193}
   - component: {fileID: 977713940779215786}
   - component: {fileID: 8578448791355357868}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player 1
   m_TagString: Paddle
   m_Icon: {fileID: 0}
@@ -160,7 +160,7 @@ Rigidbody2D:
   m_GameObject: {fileID: 8200943440218386260}
   m_BodyType: 1
   m_Simulated: 1
-  m_UseFullKinematicContacts: 1
+  m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDamping: 0

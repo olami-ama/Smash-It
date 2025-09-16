@@ -9,16 +9,25 @@ public class AIPaddleMovement : MonoBehaviour
 
     [Header("AI Settings")]
     public float moveSpeed = 6f;
-    public float serveDistance = 1.5f;  // how close paddle must be to serve
+    public float serveDistance = 1.5f;
     public float smoothness = 3f;
 
     [Header("Movement Bounds")]
     public float leftLimit = -7f, rightLimit = 7f;
     public float bottomLimit = -4f, topLimit = 4f;
 
+    private Rigidbody2D aiRb;
+    private bool loggedFoundBall = false;
+
+    void Start()
+    {
+        aiRb = GetComponent<Rigidbody2D>();
+        if (aiRb != null && aiRb.bodyType != RigidbodyType2D.Kinematic)
+            aiRb.bodyType = RigidbodyType2D.Kinematic;
+    }
+
     void Update()
     {
-        // Ensure we have the ball reference
         if (ball == null || ballRb == null)
         {
             GameObject b = GameObject.FindWithTag("Ball");
@@ -26,25 +35,24 @@ public class AIPaddleMovement : MonoBehaviour
             ball = b.transform;
             ballRb = b.GetComponent<Rigidbody2D>();
             if (ballMovement == null) ballMovement = b.GetComponent<BallMovement>();
+            if (!loggedFoundBall) { Debug.Log($"[AI] Found Ball {ball.name}"); loggedFoundBall = true; }
         }
 
-        //  If ball is NOT launched → move paddle toward it until close enough, then serve
+        if (ball == null || ballRb == null) return;
+
         if (ballMovement != null && !ballMovement.isLaunched)
         {
-            // move toward the ball’s x-position
-            Vector3 targetPos = new Vector3(ball.position.x, transform.position.y, transform.position.z);
-            transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
+            Vector3 targetPos = new Vector3(Mathf.Clamp(ball.position.x, leftLimit, rightLimit), transform.position.y, transform.position.z);
+            MoveTo(targetPos, moveSpeed);
 
-            // when close enough, launch
             if (Vector2.Distance(ball.position, transform.position) < serveDistance)
             {
+                Debug.Log($"[AI] Serving ball from {name} (dist {Vector2.Distance(ball.position, transform.position)})");
                 ballMovement.LaunchFromPaddle(transform);
             }
-
-            return; // stop here until ball is launched
+            return;
         }
 
-        //  Normal defense → follow ball only when coming toward AI
         Vector2 v = ballRb.linearVelocity;
         if (v.sqrMagnitude < 0.01f) return;
 
@@ -52,16 +60,30 @@ public class AIPaddleMovement : MonoBehaviour
         bool ballComingTowardMe = Vector2.Dot(v, toPaddle) > 0f;
         if (!ballComingTowardMe) return;
 
-        // move toward ball’s x smoothly
-        Vector3 followPos = new Vector3(ball.position.x, transform.position.y, transform.position.z); 
-        transform.position = Vector3.Lerp(transform.position, followPos, smoothness * Time.deltaTime);
+        Vector3 followPos = new Vector3(Mathf.Clamp(ball.position.x, leftLimit, rightLimit), transform.position.y, transform.position.z);
+        Vector3 newPos = Vector3.Lerp(transform.position, followPos, smoothness * Time.deltaTime);
+        MoveTo(newPos, 0f);
+    }
 
-        // clamp bounds
+    void MoveTo(Vector3 target, float speed)
+    {
+        if (aiRb != null && aiRb.bodyType == RigidbodyType2D.Kinematic)
+        {
+            Vector2 pos = speed > 0f ? Vector2.MoveTowards(aiRb.position, (Vector2)target, speed * Time.deltaTime) : (Vector2)target;
+            aiRb.MovePosition(pos);
+            Debug.Log($"[AI] MovePosition -> {pos}");
+        }
+        else
+        {
+            if (speed > 0f)
+                transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+            else
+                transform.position = target;
+            Debug.Log($"[AI] transform.position -> {transform.position}");
+        }
+
         float x = Mathf.Clamp(transform.position.x, leftLimit, rightLimit);
         float y = Mathf.Clamp(transform.position.y, bottomLimit, topLimit);
         transform.position = new Vector3(x, y, transform.position.z);
     }
 }
-
-
-

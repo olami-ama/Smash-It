@@ -460,7 +460,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 126369902465238830, guid: 3b278a35071144542b00e024d293dfff, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -1110,6 +1111,12 @@ MonoBehaviour:
   ballPrefab: {fileID: 7485524808894644554, guid: ac4dbbd1313d80a48903bbc525ce762a, type: 3}
   paddle1: {fileID: 410360330922817223, guid: e6a3c9cb3c95e0840baca13c60b9c378, type: 3}
   paddle2: {fileID: 5408327382481457490, guid: ce984d0fa1093c24486385919c0bbfd8, type: 3}
+  overlapMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  initialPad: 0.06
+  maxSpawnAdjustAttempts: 12
+  spawnNudgeStepMultiplier: 1
 --- !u!4 &1226898369
 Transform:
   m_ObjectHideFlags: 0
@@ -1493,7 +1500,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &1674530478

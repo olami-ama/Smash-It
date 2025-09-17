@@ -4,6 +4,8 @@
 public class BallMovement : MonoBehaviour
 {
     [SerializeField] private float launchSpeed = 10f;
+    public float speedMultiplier = 1f;
+
     private Rigidbody2D rb;
     private Collider2D col;
     public bool isLaunched = false;
@@ -27,17 +29,17 @@ public class BallMovement : MonoBehaviour
                 Bounds b = sr.bounds;
                 float pad = 0.5f;
                 minX = b.min.x + pad; maxX = b.max.x - pad; minY = b.min.y + pad; maxY = b.max.y - pad;
-                Debug.Log($"[Ball] Using Table bounds min({minX},{minY}) max({maxX},{maxY})");
+                
             }
             else
             {
-                Debug.LogWarning("[Ball] Table has no SpriteRenderer. Using camera bounds.");
+                
                 UseCameraBounds();
             }
         }
         else
         {
-            Debug.LogWarning("[Ball] No GameObject with tag 'Table' found! Using camera bounds.");
+
             UseCameraBounds();
         }
     }
@@ -47,7 +49,7 @@ public class BallMovement : MonoBehaviour
         Camera cam = Camera.main;
         if (cam == null)
         {
-            Debug.LogError("[Ball] No Main Camera found — using defaults.");
+            
             minX = -10; maxX = 10; minY = -5; maxY = 5;
             return;
         }
@@ -55,7 +57,7 @@ public class BallMovement : MonoBehaviour
         float horzExtent = vertExtent * cam.aspect;
         float pad = 0.5f;
         minX = -horzExtent + pad; maxX = horzExtent - pad; minY = -vertExtent + pad; maxY = vertExtent - pad;
-        Debug.Log($"[Ball] Camera bounds min({minX},{minY}) max({maxX},{maxY})");
+       
     }
 
     public void LaunchFromPaddle(Transform paddleTransform)
@@ -72,15 +74,15 @@ public class BallMovement : MonoBehaviour
 
         rb.bodyType = RigidbodyType2D.Dynamic;
         col.isTrigger = false;
-        rb.linearVelocity = dir * launchSpeed;
+        rb.linearVelocity = dir * launchSpeed * speedMultiplier;
         isLaunched = true;
 
-        Debug.Log($"[Ball] Launched from {paddleTransform.name} dir={dir} velocity={rb.linearVelocity} pos={transform.position} time={Time.time}");
+        
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log($"[Ball] OnTriggerEnter2D with {other.name} tag={other.tag} isLaunched={isLaunched}");
+        
         if (isLaunched) return;
 
         if (other.CompareTag("Paddle") || other.CompareTag("Paddle2"))
@@ -91,7 +93,7 @@ public class BallMovement : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log($"[Ball] OnCollisionEnter2D with {collision.collider.name} tag={collision.collider.tag} contacts={collision.contactCount}");
+       
         if (collision.collider.CompareTag("Goal"))
         {
             if (GameManager.Instance != null) GameManager.Instance.PlayerScores(2);
@@ -111,8 +113,8 @@ public class BallMovement : MonoBehaviour
                 reflected += new Vector2(offset * 0.5f, 0f);
             }
 
-            rb.linearVelocity = reflected.normalized * Mathf.Max(rb.linearVelocity.magnitude, launchSpeed);
-            Debug.Log($"[Ball] Reflected new velocity = {rb.linearVelocity}");
+            rb.linearVelocity = reflected.normalized * Mathf.Max(rb.linearVelocity.magnitude, launchSpeed * speedMultiplier);
+           
         }
     }
 
@@ -134,14 +136,15 @@ public class BallMovement : MonoBehaviour
         {
             transform.position = pos;
             rb.linearVelocity = vel;
-            Debug.Log($"[Ball] Bounced/Clamped to {pos} velocity={vel}");
+            
         }
-
+        // after
         float speed = rb.linearVelocity.magnitude;
-        if (speed > launchSpeed * 1.5f)
+        float clampLimit = launchSpeed * speedMultiplier * 1.5f;
+        if (speed > clampLimit)
         {
-            rb.linearVelocity = rb.linearVelocity.normalized * launchSpeed * 1.5f;
-            Debug.Log($"[Ball] Speed clamped to {rb.linearVelocity.magnitude}");
+            rb.linearVelocity = rb.linearVelocity.normalized * clampLimit;
+            
         }
     }
 
@@ -151,9 +154,9 @@ public class BallMovement : MonoBehaviour
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.linearVelocity = Vector2.zero;
         col.isTrigger = true;
-        Debug.Log("[Ball] ResetToPaddle called");
+        
     }
-
+    // draws a box to show the ball constraint
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.green;

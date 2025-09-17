@@ -11,8 +11,14 @@ public class PowerUpSpawner : MonoBehaviour
     public float spawnInterval = 10f;
 
     [Header("Spawn Areas")]
-    public BoxCollider2D topArea;    // assign a BoxCollider2D for Player 2 zone
-    public BoxCollider2D bottomArea; // assign a BoxCollider2D for Player 1 zone
+    public BoxCollider2D topArea;
+    public BoxCollider2D bottomArea;
+
+    [Header("Limit Settings")]
+    public int maxPowerUps = 3; // maximum allowed in scene at once
+
+    public MatchSettings matchSettings; // assign in inspector
+
 
     private bool spawnOnBottom = true;
 
@@ -27,7 +33,9 @@ public class PowerUpSpawner : MonoBehaviour
 
         while (true)
         {
-            if (GameObject.FindWithTag("Power up") == null)
+            int currentPowerUps = GameObject.FindGameObjectsWithTag("Power up").Length;
+
+            if (currentPowerUps < maxPowerUps)
             {
                 SpawnPowerUp();
             }

@@ -564,6 +564,81 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &968802076
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 968802079}
+  - component: {fileID: 968802078}
+  - component: {fileID: 968802077}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &968802077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 968802076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdcaf92da6addab4f84c37a99b4456e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fadeOverlay: {fileID: 87248137}
+  fadeDuration: 0.5
+--- !u!114 &968802078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 968802076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf6882e771dfe7443987bfaf761167a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  matchSettings: {fileID: 11400000, guid: 43832ecb73bfeac42a0515f8458451db, type: 2}
+  player1ScoreText: {fileID: 1993874083}
+  player2ScoreText: {fileID: 1424487587}
+  winPanel: {fileID: 1967363095}
+  winText: {fileID: 1025149315}
+  loseText: {fileID: 1711963061}
+  winningScore: 5
+  ballPrefab: {fileID: 7485524808894644554, guid: ac4dbbd1313d80a48903bbc525ce762a, type: 3}
+  paddle1: {fileID: 410360330922817223, guid: e6a3c9cb3c95e0840baca13c60b9c378, type: 3}
+  paddle2: {fileID: 5408327382481457490, guid: ce984d0fa1093c24486385919c0bbfd8, type: 3}
+  initialPad: 0.06
+  maxSpawnAdjustAttempts: 12
+  spawnNudgeStepMultiplier: 1
+  overlapMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!4 &968802079
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 968802076}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.6887311, y: -0.8699999, z: -5.374437}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1025149313
 GameObject:
   m_ObjectHideFlags: 0
@@ -967,75 +1042,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e6a3c9cb3c95e0840baca13c60b9c378, type: 3}
---- !u!1 &1226898367
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1226898369}
-  - component: {fileID: 1226898368}
-  - component: {fileID: 1226898370}
-  m_Layer: 0
-  m_Name: GameManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1226898368
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1226898367}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bf6882e771dfe7443987bfaf761167a7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  matchSettings: {fileID: 11400000, guid: 43832ecb73bfeac42a0515f8458451db, type: 2}
-  player1ScoreText: {fileID: 1993874083}
-  player2ScoreText: {fileID: 1424487587}
-  winPanel: {fileID: 1967363095}
-  winText: {fileID: 1025149315}
-  loseText: {fileID: 1711963061}
-  winningScore: 5
-  ballPrefab: {fileID: 7485524808894644554, guid: ac4dbbd1313d80a48903bbc525ce762a, type: 3}
-  paddle1: {fileID: 410360330922817223, guid: e6a3c9cb3c95e0840baca13c60b9c378, type: 3}
-  paddle2: {fileID: 5408327382481457490, guid: ce984d0fa1093c24486385919c0bbfd8, type: 3}
---- !u!4 &1226898369
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1226898367}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.6887311, y: -0.8699999, z: -5.374437}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1226898370
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1226898367}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cdcaf92da6addab4f84c37a99b4456e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fadeOverlay: {fileID: 87248137}
-  fadeDuration: 0.5
 --- !u!1 &1243966836
 GameObject:
   m_ObjectHideFlags: 0
@@ -1219,7 +1225,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1424487586
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2098,7 +2104,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1993874082
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2228,10 +2234,10 @@ SceneRoots:
   - {fileID: 165313284}
   - {fileID: 741423276}
   - {fileID: 1674530478}
-  - {fileID: 1226898369}
   - {fileID: 1359639361}
   - {fileID: 1715047320}
   - {fileID: 1243966838}
   - {fileID: 1361879631}
   - {fileID: 1841759709}
   - {fileID: 36476206}
+  - {fileID: 968802079}

@@ -35,8 +35,8 @@ public class PowerUpSpawner : MonoBehaviour
     }
     void Update()
     {
-        if (GameManager.Instance.IsGameOver()) return;  // stop movement
-                                                        // normal paddle controls here
+        if (GameManager.Instance.IsGameOver()) return;  // stop spawning
+                                                        
     }
 
     private IEnumerator SpawnLoop()

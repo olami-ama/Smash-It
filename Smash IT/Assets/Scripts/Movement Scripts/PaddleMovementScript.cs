@@ -12,12 +12,9 @@ public class PaddleMovementScript : MonoBehaviour
     private bool isBottomPaddle;
     private float zDistance;
 
-    // debug states to avoid spamming every frame
-    private bool prevHadTouch = false;
-    private bool prevHadKeyboard = false;
-
     void Start()
     {
+        // Decide which paddle this is based on tag
         if (CompareTag("Paddle")) // bottom paddle
         {
             upKey = KeyCode.W; downKey = KeyCode.S; leftKey = KeyCode.A; rightKey = KeyCode.D;
@@ -30,11 +27,13 @@ public class PaddleMovementScript : MonoBehaviour
         }
         else
         {
+            // fallback keys if tag is wrong
             upKey = KeyCode.W; downKey = KeyCode.S; leftKey = KeyCode.A; rightKey = KeyCode.D;
             isBottomPaddle = true;
             Debug.LogWarning($"[PaddleMovement] {name} missing Paddle/Paddle2 tag. Defaulting to bottom keys.");
         }
 
+        // Distance from camera so ScreenToWorldPoint works correctly
         if (Camera.main != null)
             zDistance = Mathf.Abs(Camera.main.transform.position.z - transform.position.z);
         else
@@ -45,24 +44,25 @@ public class PaddleMovementScript : MonoBehaviour
 
     void Update()
     {
-
-          if (GameManager.Instance.IsGameOver()) return;  // stop movement
-                                                            
-       
+        // Stop if game is over
+        if (GameManager.Instance.IsGameOver()) return;
         if (Camera.main == null) return;
 
         Vector3 keyboardMove = Vector3.zero;
         Vector3 desiredPos = transform.position;
 
+        // Keyboard input
         if (Input.GetKey(upKey)) keyboardMove += Vector3.up;
         if (Input.GetKey(downKey)) keyboardMove += Vector3.down;
         if (Input.GetKey(leftKey)) keyboardMove += Vector3.left;
         if (Input.GetKey(rightKey)) keyboardMove += Vector3.right;
 
+        // Screen bounds
         Vector3 screenBottomLeft = Camera.main.ScreenToWorldPoint(new Vector3(0, 0, zDistance));
         Vector3 screenTopRight = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, zDistance));
         float midY = (screenBottomLeft.y + screenTopRight.y) * 0.5f;
 
+        // Paddle size (for clamping)
         SpriteRenderer sr = GetComponent<SpriteRenderer>() ?? GetComponentInChildren<SpriteRenderer>();
         float halfW = sr != null ? sr.bounds.extents.x : 0.5f;
         float halfH = sr != null ? sr.bounds.extents.y : 0.5f;
@@ -70,6 +70,7 @@ public class PaddleMovementScript : MonoBehaviour
         bool hasTouchTarget = false;
         Vector3 touchTarget = Vector3.zero;
 
+        // Touch input
         if (Input.touchCount > 0)
         {
             foreach (Touch touch in Input.touches)
@@ -82,15 +83,12 @@ public class PaddleMovementScript : MonoBehaviour
                 world.z = transform.position.z;
                 touchTarget = world;
                 hasTouchTarget = true;
-
-                if (!prevHadTouch)
-                    Debug.Log($"[PaddleMovement] {name} Touch started at screen {touch.position} -> world {world}");
-                prevHadTouch = true;
                 break;
             }
         }
         else
         {
+            // Mouse as fallback
             if (Input.GetMouseButton(0))
             {
                 Vector3 mousePos = Input.mousePosition;
@@ -100,33 +98,18 @@ public class PaddleMovementScript : MonoBehaviour
                     world.z = transform.position.z;
                     touchTarget = world;
                     hasTouchTarget = true;
-
-                    if (!prevHadTouch)
-                        Debug.Log($"[PaddleMovement] {name} Mouse touch at {mousePos} -> world {world}");
-                    prevHadTouch = true;
                 }
-                else prevHadTouch = false;
-            }
-            else
-            {
-                prevHadTouch = false;
             }
         }
 
+        // Move logic
         if (hasTouchTarget)
         {
             desiredPos = Vector3.MoveTowards(transform.position, touchTarget, moveSpeed * Time.deltaTime);
         }
         else if (keyboardMove != Vector3.zero)
         {
-            if (!prevHadKeyboard)
-                Debug.Log($"[PaddleMovement] {name} Keyboard input started (dir {keyboardMove})");
-            prevHadKeyboard = true;
             desiredPos += keyboardMove.normalized * moveSpeed * Time.deltaTime;
-        }
-        else
-        {
-            prevHadKeyboard = false;
         }
 
         // Clamp X
@@ -146,16 +129,14 @@ public class PaddleMovementScript : MonoBehaviour
             desiredPos.y = Mathf.Clamp(desiredPos.y, lowerBound, upperBound);
         }
 
-        // If clamped changed position from previous, log it once
+        // Apply final position
         if ((Vector2)transform.position != (Vector2)desiredPos)
         {
-            Debug.Log($"[PaddleMovement] {name} Moving to {desiredPos}");
             transform.position = desiredPos;
         }
     }
-   
-
 }
+
 
 
 

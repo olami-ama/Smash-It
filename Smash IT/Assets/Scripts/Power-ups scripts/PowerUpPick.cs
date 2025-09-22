@@ -25,7 +25,7 @@ public class PowerUpPickup : MonoBehaviour
         if (type == PowerUpType.BigPaddle || type == PowerUpType.SpeedBoost)
         {
             // Check paddle tags. Use CompareTag (fast and null-safe).
-            bool isPaddle = other.CompareTag("Paddle") || other.CompareTag("Paddle2") || other.CompareTag("AI_Player");
+            bool isPaddle = other.CompareTag("Paddle") || other.CompareTag("Paddle2") || other.CompareTag("AI player");
 
             if (isPaddle)
             {

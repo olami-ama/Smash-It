@@ -43,6 +43,7 @@ public class BallMovement : MonoBehaviour
             UseCameraBounds();
         }
     }
+   
 
     void UseCameraBounds()
     {
@@ -120,6 +121,7 @@ public class BallMovement : MonoBehaviour
 
     void Update()
     {
+       // if (GameManager.Instance.IsGameOver()) return;  // stop movement
         if (!isLaunched) return;
 
         Vector3 pos = transform.position;

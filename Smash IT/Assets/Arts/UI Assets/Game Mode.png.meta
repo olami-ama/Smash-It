@@ -1,46 +1,31 @@
 fileFormatVersion: 2
-guid: 1937a11fcafd1fd22a18e749f481c779
+guid: 7ade142e5b993c946a5c3a38817b1826
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -9130912608670895942
-    second: Big Ball Powerup_0
+      213: -2449227744137547025
+    second: Game Mode_0
   - first:
-      213: 6558164937816795582
-    second: Big Ball Powerup_1
+      213: -7299019302960425257
+    second: Game Mode_1
   - first:
-      213: 6406865997425761121
-    second: Big Ball Powerup_2
+      213: -8204703762299328783
+    second: Game Mode_2
   - first:
-      213: 2542446212800887661
-    second: Big Ball Powerup_3
+      213: -6293344439399688339
+    second: Game Mode_3
   - first:
-      213: 3741796255589446420
-    second: Big Ball Powerup_4
+      213: -4005728251360668957
+    second: Game Mode_4
   - first:
-      213: 3570151308476924445
-    second: Big Ball Powerup_5
+      213: 8597840641006371206
+    second: Game Mode_5
   - first:
-      213: -7238544794341668448
-    second: Big Ball Powerup_6
+      213: -2759264356353363389
+    second: Game Mode_6
   - first:
-      213: -2291289120915186777
-    second: Big Ball Powerup_7
-  - first:
-      213: -3928067127519662676
-    second: Big Ball Powerup_8
-  - first:
-      213: -7107345226486291930
-    second: Big Ball Powerup_9
-  - first:
-      213: -8007852621723292339
-    second: Big Ball Powerup_10
-  - first:
-      213: -8520213751982273649
-    second: Big Ball Powerup_11
-  - first:
-      213: -3767910945732137430
-    second: Big Ball Powerup_12
+      213: 4000055676449045493
+    second: Game Mode_7
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -82,7 +67,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -162,13 +147,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Big Ball Powerup_0
+      name: Game Mode_0
       rect:
         serializedVersion: 2
-        x: 6
-        y: 41
-        width: 262
-        height: 459
+        x: 2
+        y: 79
+        width: 44
+        height: 47
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -177,19 +162,63 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ab0390d2c5b784180800000000000000
-      internalID: -9130912608670895942
+      spriteID: fe276a0e758920ed0800000000000000
+      internalID: -2449227744137547025
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Big Ball Powerup_1
+      name: Game Mode_1
       rect:
         serializedVersion: 2
-        x: 246
-        y: 321
-        width: 8
+        x: 45
+        y: 80
+        width: 36
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d61356ad9ca4ba90800000000000000
+      internalID: -7299019302960425257
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game Mode_2
+      rect:
+        serializedVersion: 2
+        x: 78
+        y: 81
+        width: 58
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f666d80669032e80800000000000000
+      internalID: -8204703762299328783
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game Mode_3
+      rect:
+        serializedVersion: 2
+        x: 134
+        y: 84
+        width: 34
         height: 29
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -199,20 +228,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: eb9edf8a348430b50800000000000000
-      internalID: 6558164937816795582
+      spriteID: d67d660739c89a8a0800000000000000
+      internalID: -6293344439399688339
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Big Ball Powerup_2
+      name: Game Mode_4
       rect:
         serializedVersion: 2
-        x: 267
-        y: 4
-        width: 233
-        height: 472
+        x: 0
+        y: 1
+        width: 56
+        height: 48
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -221,20 +250,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 16b571cfda2c9e850800000000000000
-      internalID: 6406865997425761121
+      spriteID: 3e296eee06bc868c0800000000000000
+      internalID: -4005728251360668957
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Big Ball Powerup_3
+      name: Game Mode_5
       rect:
         serializedVersion: 2
-        x: 284
-        y: 311
-        width: 18
-        height: 26
+        x: 53
+        y: 1
+        width: 33
+        height: 31
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -243,20 +272,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d6bb88e2c55984320800000000000000
-      internalID: 2542446212800887661
+      spriteID: 6810a9a728aa15770800000000000000
+      internalID: 8597840641006371206
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Big Ball Powerup_4
+      name: Game Mode_6
       rect:
         serializedVersion: 2
-        x: 162
-        y: 283
-        width: 26
-        height: 19
+        x: 88
+        y: 0
+        width: 40
+        height: 53
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -265,20 +294,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 413bb4c9ed78de330800000000000000
-      internalID: 3741796255589446420
+      spriteID: 3423926efaf15b9d0800000000000000
+      internalID: -2759264356353363389
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Big Ball Powerup_5
+      name: Game Mode_7
       rect:
         serializedVersion: 2
-        x: 187
-        y: 187
-        width: 126
-        height: 125
+        x: 125
+        y: 7
+        width: 35
+        height: 29
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -287,162 +316,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d12c92813b9bb8130800000000000000
-      internalID: 3570151308476924445
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Big Ball Powerup_6
-      rect:
-        serializedVersion: 2
-        x: 106
-        y: 243
-        width: 73
-        height: 11
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 0a9038a6cd58b8b90800000000000000
-      internalID: -7238544794341668448
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Big Ball Powerup_7
-      rect:
-        serializedVersion: 2
-        x: 321
-        y: 230
-        width: 43
-        height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7ab122e2fa4b330e0800000000000000
-      internalID: -2291289120915186777
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Big Ball Powerup_8
-      rect:
-        serializedVersion: 2
-        x: 162
-        y: 197
-        width: 26
-        height: 19
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: cad2d4262c3bc79c0800000000000000
-      internalID: -3928067127519662676
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Big Ball Powerup_9
-      rect:
-        serializedVersion: 2
-        x: 312
-        y: 197
-        width: 26
-        height: 19
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 622673f3c23ad5d90800000000000000
-      internalID: -7107345226486291930
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Big Ball Powerup_10
-      rect:
-        serializedVersion: 2
-        x: 198
-        y: 161
-        width: 18
-        height: 27
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: d4da08cc7746ed090800000000000000
-      internalID: -8007852621723292339
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Big Ball Powerup_11
-      rect:
-        serializedVersion: 2
-        x: 246
-        y: 148
-        width: 8
-        height: 30
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f8bc2be0cbe12c980800000000000000
-      internalID: -8520213751982273649
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Big Ball Powerup_12
-      rect:
-        serializedVersion: 2
-        x: 284
-        y: 155
-        width: 18
-        height: 33
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a2e645645f0b5bbc0800000000000000
-      internalID: -3767910945732137430
+      spriteID: 5fbb78cc17d038730800000000000000
+      internalID: 4000055676449045493
       vertices: []
       indices: 
       edges: []
@@ -451,7 +326,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -461,19 +336,14 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Big Ball Powerup_0: -9130912608670895942
-      Big Ball Powerup_1: 6558164937816795582
-      Big Ball Powerup_10: -8007852621723292339
-      Big Ball Powerup_11: -8520213751982273649
-      Big Ball Powerup_12: -3767910945732137430
-      Big Ball Powerup_2: 6406865997425761121
-      Big Ball Powerup_3: 2542446212800887661
-      Big Ball Powerup_4: 3741796255589446420
-      Big Ball Powerup_5: 3570151308476924445
-      Big Ball Powerup_6: -7238544794341668448
-      Big Ball Powerup_7: -2291289120915186777
-      Big Ball Powerup_8: -3928067127519662676
-      Big Ball Powerup_9: -7107345226486291930
+      Game Mode_0: -2449227744137547025
+      Game Mode_1: -7299019302960425257
+      Game Mode_2: -8204703762299328783
+      Game Mode_3: -6293344439399688339
+      Game Mode_4: -4005728251360668957
+      Game Mode_5: 8597840641006371206
+      Game Mode_6: -2759264356353363389
+      Game Mode_7: 4000055676449045493
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

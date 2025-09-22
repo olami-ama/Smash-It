@@ -12,3 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55f51f961b34f2946ac86ce4ae22861d, type: 3}
   m_Name: DefaultMatchSettings
   m_EditorClassIdentifier: 
+  selectedMode: 0
+  allowedPowerUps: 00000000030000000200000001000000
+  maxPowerUps: 3

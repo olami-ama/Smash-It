@@ -45,6 +45,10 @@ public class PaddleMovementScript : MonoBehaviour
 
     void Update()
     {
+
+          if (GameManager.Instance.IsGameOver()) return;  // stop movement
+                                                            
+       
         if (Camera.main == null) return;
 
         Vector3 keyboardMove = Vector3.zero;
@@ -149,6 +153,8 @@ public class PaddleMovementScript : MonoBehaviour
             transform.position = desiredPos;
         }
     }
+   
+
 }
 
 

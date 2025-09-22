@@ -28,6 +28,7 @@ public class AIPaddleMovement : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.Instance.IsGameOver()) return;  // stop movement
         if (ball == null || ballRb == null)
         {
             GameObject b = GameObject.FindWithTag("Ball");

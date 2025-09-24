@@ -11,6 +11,10 @@ public class BallMovement : MonoBehaviour
     public bool isLaunched = false;
 
     private float minX, maxX, minY, maxY;
+    private bool boundsInitialized = false;
+
+    //  set true in inspector to see helpful one-shot logs during serve/collision.
+    public bool debugServeLogs = false;
 
     void Start()
     {
@@ -20,6 +24,11 @@ public class BallMovement : MonoBehaviour
         rb.bodyType = RigidbodyType2D.Kinematic;
         col.isTrigger = true;
 
+        InitializeBounds();
+    }
+
+    void InitializeBounds()
+    {
         GameObject table = GameObject.FindWithTag("Table");
         if (table != null)
         {
@@ -29,48 +38,52 @@ public class BallMovement : MonoBehaviour
                 Bounds b = sr.bounds;
                 float pad = 0.5f;
                 minX = b.min.x + pad; maxX = b.max.x - pad; minY = b.min.y + pad; maxY = b.max.y - pad;
-                
-            }
-            else
-            {
-                
-                UseCameraBounds();
+                boundsInitialized = true;
+                return;
             }
         }
-        else
-        {
-
-            UseCameraBounds();
-        }
+        UseCameraBounds();
     }
-   
 
     void UseCameraBounds()
     {
         Camera cam = Camera.main;
         if (cam == null)
         {
-            
             minX = -10; maxX = 10; minY = -5; maxY = 5;
+            boundsInitialized = true;
             return;
         }
         float vertExtent = cam.orthographicSize;
         float horzExtent = vertExtent * cam.aspect;
         float pad = 0.5f;
         minX = -horzExtent + pad; maxX = horzExtent - pad; minY = -vertExtent + pad; maxY = vertExtent - pad;
-       
+        boundsInitialized = true;
     }
 
+    // Helper: arena center Y (used to decide which side a paddle is on)
+    private float ArenaCenterY()
+    {
+        if (!boundsInitialized) InitializeBounds();
+        return (minY + maxY) * 0.5f;
+    }
+
+    // compute direction based on which side the paddle is on (away from paddle)
     public void LaunchFromPaddle(Transform paddleTransform)
     {
-        if (isLaunched) return;
+        if (isLaunched || paddleTransform == null) return;
 
-        // compute direction
+        float arenaCenterY = ArenaCenterY();
+
+        // If paddle is above the arena center => paddle is top side 
+        // If paddle is below the arena center => paddle is bottom side 
+        Vector2 baseDir = (paddleTransform.position.y >= arenaCenterY) ? Vector2.down : Vector2.up;
+
+        // Horizontal bias based on relative x
         float xOffset = transform.position.x - paddleTransform.position.x;
-        Vector2 baseDir = paddleTransform.CompareTag("Paddle") ? Vector2.up : Vector2.down;
         Vector2 dir = (baseDir + new Vector2(xOffset * 0.5f, 0f)).normalized;
 
-        // Nudge position away to avoid overlap then enable physics
+        // Nudge away from the paddle to avoid overlap
         transform.position += (Vector3)(baseDir * 0.12f);
 
         rb.bodyType = RigidbodyType2D.Dynamic;
@@ -78,12 +91,11 @@ public class BallMovement : MonoBehaviour
         rb.linearVelocity = dir * launchSpeed * speedMultiplier;
         isLaunched = true;
 
-        
+        if (debugServeLogs) Debug.Log($"[Ball] Launched from {paddleTransform.name}. paddleY={paddleTransform.position.y:F2} arenaCenterY={arenaCenterY:F2} baseDir={baseDir} finalDir={dir}");
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        
         if (isLaunched) return;
 
         if (other.CompareTag("Paddle") || other.CompareTag("Paddle2"))
@@ -94,34 +106,43 @@ public class BallMovement : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-       
         if (collision.collider.CompareTag("Goal"))
         {
             if (GameManager.Instance != null) GameManager.Instance.PlayerScores(2);
+            return;
         }
         else if (collision.collider.CompareTag("Goalp2"))
         {
             if (GameManager.Instance != null) GameManager.Instance.PlayerScores(1);
+            return;
         }
-        else if (isLaunched && collision.contactCount > 0)
+
+        if (!isLaunched || collision.contactCount == 0) return;
+
+        Vector2 normal = collision.GetContact(0).normal;
+        Vector2 reflected = Vector2.Reflect(rb.linearVelocity, normal);
+
+        if (collision.collider.CompareTag("Paddle") || collision.collider.CompareTag("Paddle2"))
         {
-            Vector2 normal = collision.GetContact(0).normal;
-            Vector2 reflected = Vector2.Reflect(rb.linearVelocity, normal);
+            // horizontal bias from hit offset
+            float offset = transform.position.x - collision.collider.transform.position.x;
+            reflected += new Vector2(offset * 0.5f, 0f);
 
-            if (collision.collider.CompareTag("Paddle") || collision.collider.CompareTag("Paddle2"))
-            {
-                float offset = transform.position.x - collision.collider.transform.position.x;
-                reflected += new Vector2(offset * 0.5f, 0f);
-            }
+            // Force the vertical component to point AWAY from the paddle side (use arena center)
+            float arenaCenterY = ArenaCenterY();
+            float desiredAwaySign = (collision.collider.transform.position.y >= arenaCenterY) ? -1f : 1f;
+            if (desiredAwaySign == 0f) desiredAwaySign = 1f;
+            reflected.y = Mathf.Abs(reflected.y) * desiredAwaySign;
 
-            rb.linearVelocity = reflected.normalized * Mathf.Max(rb.linearVelocity.magnitude, launchSpeed * speedMultiplier);
-           
+            if (debugServeLogs) Debug.Log($"[Ball] Paddle hit by {collision.collider.name}. paddleY={collision.collider.transform.position.y:F2} arenaCenterY={arenaCenterY:F2} forcedYSign={desiredAwaySign}");
         }
+
+        float newSpeed = Mathf.Max(reflected.magnitude, launchSpeed * speedMultiplier);
+        rb.linearVelocity = reflected.normalized * newSpeed;
     }
 
     void Update()
     {
-       // if (GameManager.Instance.IsGameOver()) return;  // stop movement
         if (!isLaunched) return;
 
         Vector3 pos = transform.position;
@@ -138,15 +159,13 @@ public class BallMovement : MonoBehaviour
         {
             transform.position = pos;
             rb.linearVelocity = vel;
-            
         }
-        // after
+
         float speed = rb.linearVelocity.magnitude;
         float clampLimit = launchSpeed * speedMultiplier * 1.5f;
         if (speed > clampLimit)
         {
             rb.linearVelocity = rb.linearVelocity.normalized * clampLimit;
-            
         }
     }
 
@@ -156,11 +175,12 @@ public class BallMovement : MonoBehaviour
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.linearVelocity = Vector2.zero;
         col.isTrigger = true;
-        
     }
-    // draws a box to show the ball constraint
+
     private void OnDrawGizmos()
     {
+        // draw a safe box even if bounds not initialized
+        if (!boundsInitialized) InitializeBounds();
         Gizmos.color = Color.green;
         Gizmos.DrawLine(new Vector3(minX, minY), new Vector3(maxX, minY));
         Gizmos.DrawLine(new Vector3(maxX, minY), new Vector3(maxX, maxY));
@@ -168,6 +188,7 @@ public class BallMovement : MonoBehaviour
         Gizmos.DrawLine(new Vector3(minX, maxY), new Vector3(minX, minY));
     }
 }
+
 
 
 /*using UnityEngine;

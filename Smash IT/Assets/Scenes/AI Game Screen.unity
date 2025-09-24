@@ -447,6 +447,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: AI Player
       objectReference: {fileID: 0}
+    - target: {fileID: 2742243471473723498, guid: 3b278a35071144542b00e024d293dfff, type: 3}
+      propertyPath: ball
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2742243471473723498, guid: 3b278a35071144542b00e024d293dfff, type: 3}
+      propertyPath: ballRb
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2742243471473723498, guid: 3b278a35071144542b00e024d293dfff, type: 3}
+      propertyPath: ballMovement
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 5408327382481457490, guid: 3b278a35071144542b00e024d293dfff, type: 3}
       propertyPath: m_LocalPosition.x
       value: 2.03

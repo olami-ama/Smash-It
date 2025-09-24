@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class AIPaddleMovement : MonoBehaviour
 {
     [Header("Ball (assign or tag as 'Ball')")]
@@ -8,83 +9,149 @@ public class AIPaddleMovement : MonoBehaviour
     public BallMovement ballMovement;
 
     [Header("AI Settings")]
-    public float moveSpeed = 6f;
-    public float serveDistance = 1.5f;
-    public float smoothness = 3f;
+    public float moveSpeed = 6f;            // used when using MoveTowards style movement
+    public float serveDistance = 1.5f;      // how close to ball to trigger serve
+    public float smoothness = 3f;           // lerp factor for follow (used to compute target)
+    public bool usePrediction = false;      // set true to use simple linear prediction
 
     [Header("Movement Bounds")]
     public float leftLimit = -7f, rightLimit = 7f;
     public float bottomLimit = -4f, topLimit = 4f;
 
-    private Rigidbody2D aiRb;
-    private bool loggedFoundBall = false;
+    [Header("Debug")]
+    public bool debugVerbose = false;
 
-    void Start()
+    private Rigidbody2D aiRb;
+    private Vector2 physicsTargetPosition;  // target used in FixedUpdate
+    private bool loggedFoundBall = false;
+    private bool lastServingState = false;
+
+    void Awake()
     {
         aiRb = GetComponent<Rigidbody2D>();
-        if (aiRb != null && aiRb.bodyType != RigidbodyType2D.Kinematic)
+        if (aiRb == null)
+            aiRb = gameObject.AddComponent<Rigidbody2D>();
+
+        // Prefer kinematic for AI that directly sets positions
+        if (aiRb.bodyType != RigidbodyType2D.Kinematic)
             aiRb.bodyType = RigidbodyType2D.Kinematic;
+
+        physicsTargetPosition = aiRb.position;
     }
 
     void Update()
     {
-        if (GameManager.Instance.IsGameOver()) return;  // stop movement
+        //  avoid NullReference if GameManager not set up
+        if (GameManager.Instance != null && GameManager.Instance.IsGameOver()) return;
+
+        // lazy find ball if needed
         if (ball == null || ballRb == null)
         {
             GameObject b = GameObject.FindWithTag("Ball");
-            if (b == null) return;
-            ball = b.transform;
-            ballRb = b.GetComponent<Rigidbody2D>();
-            if (ballMovement == null) ballMovement = b.GetComponent<BallMovement>();
-            if (!loggedFoundBall) { Debug.Log($"[AI] Found Ball {ball.name}"); loggedFoundBall = true; }
+            if (b != null)
+            {
+                ball = b.transform;
+                ballRb = b.GetComponent<Rigidbody2D>();
+                if (ballMovement == null) ballMovement = b.GetComponent<BallMovement>();
+                if (!loggedFoundBall)
+                {
+                    loggedFoundBall = true;
+                    if (debugVerbose) Debug.Log($"[AI] Found Ball: {ball.name}");
+                }
+            }
+            else
+            {
+                // no ball found nothing to do
+                return;
+            }
         }
 
-        if (ball == null || ballRb == null) return;
-
+        // If the ball isn't launched, move under it to serve
         if (ballMovement != null && !ballMovement.isLaunched)
         {
-            Vector3 targetPos = new Vector3(Mathf.Clamp(ball.position.x, leftLimit, rightLimit), transform.position.y, transform.position.z);
-            MoveTo(targetPos, moveSpeed);
+            // align x with ball (clamped)
+            float targetX = Mathf.Clamp(ball.position.x, leftLimit, rightLimit);
+            Vector3 targetPos = new Vector3(targetX, transform.position.y, transform.position.z);
 
-            if (Vector2.Distance(ball.position, transform.position) < serveDistance)
+            // compute a smoothed follow target (so AI doesn't teleport)
+            Vector3 smoothed = Vector3.Lerp(transform.position, targetPos, smoothness * Time.deltaTime);
+            physicsTargetPosition = ClampToBounds(smoothed);
+
+            // decide whether to serve (distance based on x and y)
+            float dist = Vector2.Distance(new Vector2(ball.position.x, ball.position.y), aiRb.position);
+            if (dist < serveDistance)
             {
-                Debug.Log($"[AI] Serving ball from {name} (dist {Vector2.Distance(ball.position, transform.position)})");
+                if (debugVerbose) Debug.Log($"[AI] Serving ball from {name} (dist {dist:F2})");
                 ballMovement.LaunchFromPaddle(transform);
             }
+
             return;
         }
 
-        Vector2 v = ballRb.linearVelocity;
-        if (v.sqrMagnitude < 0.01f) return;
+        // If ballMovement exists and ball was launched, attempt to follow when ball is moving toward paddle
+        if (ballRb == null) return;
 
-        Vector2 toPaddle = (Vector2)transform.position - (Vector2)ball.position;
+        Vector2 v = ballRb.linearVelocity;
+        if (v.sqrMagnitude < 0.01f)
+        {
+            // ball is essentially stationary  keep current physicsTargetPosition
+            return;
+        }
+
+        Vector2 toPaddle = (Vector2)aiRb.position - (Vector2)ball.position;
         bool ballComingTowardMe = Vector2.Dot(v, toPaddle) > 0f;
         if (!ballComingTowardMe) return;
 
-        Vector3 followPos = new Vector3(Mathf.Clamp(ball.position.x, leftLimit, rightLimit), transform.position.y, transform.position.z);
+        // Compute follow target Optionally predict where the ball will be at this paddle Y (simple linear).
+        float targetXFollow = ball.position.x;
+        if (usePrediction)
+        {
+            // Simple linear prediction ignoring collisions 
+            float deltaY = aiRb.position.y - ball.position.y;
+            if (Mathf.Abs(v.y) > 0.001f)
+            {
+                float t = deltaY / v.y; // time until ball is at paddle Y 
+                if (t > 0f)
+                {
+                    targetXFollow = ball.position.x + v.x * t;
+                }
+            }
+        }
+
+        targetXFollow = Mathf.Clamp(targetXFollow, leftLimit, rightLimit);
+        Vector3 followPos = new Vector3(targetXFollow, transform.position.y, transform.position.z);
+        // smooth the movement toward followPos result used by physics in FixedUpdate
         Vector3 newPos = Vector3.Lerp(transform.position, followPos, smoothness * Time.deltaTime);
-        MoveTo(newPos, 0f);
+        physicsTargetPosition = ClampToBounds(newPos);
     }
 
-    void MoveTo(Vector3 target, float speed)
+    void FixedUpdate()
     {
-        if (aiRb != null && aiRb.bodyType == RigidbodyType2D.Kinematic)
-        {
-            Vector2 pos = speed > 0f ? Vector2.MoveTowards(aiRb.position, (Vector2)target, speed * Time.deltaTime) : (Vector2)target;
-            aiRb.MovePosition(pos);
-            Debug.Log($"[AI] MovePosition -> {pos}");
-        }
-        else
-        {
-            if (speed > 0f)
-                transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
-            else
-                transform.position = target;
-            Debug.Log($"[AI] transform.position -> {transform.position}");
-        }
+        // Apply movement using Rigidbody2D.MovePosition (physics safe)
+        if (aiRb == null) return;
 
-        float x = Mathf.Clamp(transform.position.x, leftLimit, rightLimit);
-        float y = Mathf.Clamp(transform.position.y, bottomLimit, topLimit);
-        transform.position = new Vector3(x, y, transform.position.z);
+        // Move toward physicsTargetPosition at moveSpeed, but if physicsTargetPosition is same as aiRb.position
+        // MovePosition with same pos is fine Use MoveTowards so moveSpeed is respected
+        Vector2 current = aiRb.position;
+        Vector2 target = physicsTargetPosition;
+        float maxDelta = moveSpeed * Time.fixedDeltaTime;
+
+        Vector2 nextPos = Vector2.MoveTowards(current, target, maxDelta);
+        aiRb.MovePosition(nextPos);
+
+        //  low verbosity logging only log when there's a noticeable jump
+        if (debugVerbose && (nextPos - current).sqrMagnitude > 0.0001f)
+        {
+            Debug.Log($"[AI] MovePosition -> {nextPos} (target {target})");
+        }
+    }
+
+    // Ensures a Vector3 is inside the configured bounds (keeps z)
+    private Vector3 ClampToBounds(Vector3 pos)
+    {
+        float x = Mathf.Clamp(pos.x, leftLimit, rightLimit);
+        float y = Mathf.Clamp(pos.y, bottomLimit, topLimit);
+        return new Vector3(x, y, pos.z);
     }
 }
+

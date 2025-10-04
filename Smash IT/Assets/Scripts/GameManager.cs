@@ -1,76 +1,60 @@
 using UnityEngine;
-using TMPro;
 using UnityEngine.SceneManagement;
+
+public enum PlayerType
+{
+    Player1,
+    Player2,
+    AI
+}
 
 public class GameManager : MonoBehaviour
 {
     [Header("Match Settings")]
-    public MatchSettings matchSettings;
-
-    [Header("Score UI")]
-    public TMP_Text player1ScoreText;
-    public TMP_Text player2ScoreText;
-    public GameObject winPanel;
-    public TextMeshProUGUI winText;
-    public TextMeshProUGUI loseText;
-
-    [Header("Gameplay")]
+    public MatchSettings matchSettings;   // Assign in Inspector
     public int winningScore = 5;
-    private int player1Score = 0;
-    private int player2Score = 0;
 
     [Header("Ball Settings")]
     public GameObject ballPrefab;
     public Transform paddle1;
     public Transform paddle2;
-    private int currentServer = 1;
-    private GameObject currentBall;
-
-    // Optional offsets / spawn adjustments
-    public float initialPad = 0.06f;
-    public int maxSpawnAdjustAttempts = 12;
-    public float spawnNudgeStepMultiplier = 1.0f;
-    public LayerMask overlapMask = ~0;
 
     public static GameManager Instance;
+
+    private int player1Score = 0;
+    private int player2Score = 0;
+    private int currentServer = 1;
+    private GameObject currentBall;
     private bool isGameOver = false;
 
     void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            // No DontDestroyOnLoad here  Replay reload works
-        }
-        else
-        {
-            Destroy(gameObject);
-            Debug.Log("[GameManager] Duplicate instance destroyed.");
-        }
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
     }
 
     void Start()
     {
         isGameOver = false;
-        winPanel.SetActive(false);
-
-        Debug.Log($"[GameManager] Start fired. BallPrefab assigned: {(ballPrefab != null)}, Paddle1 assigned: {(paddle1 != null)}, Paddle2 assigned: {(paddle2 != null)}");
-
         SpawnBall();
-        UpdateScoreUI();
+        UIManager.Instance.UpdateScoreUI(player1Score, player2Score);
     }
 
     public bool IsGameOver() => isGameOver;
 
     public void PlayerScores(int playerNumber)
     {
+        if (isGameOver) return;
+
         if (playerNumber == 1) player1Score++;
         else player2Score++;
 
-        UpdateScoreUI();
+        UIManager.Instance.UpdateScoreUI(player1Score, player2Score);
 
         if (player1Score >= winningScore || player2Score >= winningScore)
+        {
             EndGame();
+        }
         else
         {
             SwitchServer();
@@ -78,111 +62,50 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void UpdateScoreUI()
-    {
-        player1ScoreText.text = "Player 1: " + player1Score;
-        player2ScoreText.text = "Player 2: " + player2Score;
-    }
-
     void EndGame()
     {
-        winPanel.SetActive(true);
-        winText.text = (player1Score > player2Score) ? "Player 1 Wins!" : "Player 2 Wins!";
-        loseText.text = "";
         isGameOver = true;
+        if (currentBall != null) Destroy(currentBall);
 
-        if (currentBall != null)
+        // Determine winner or loser
+        PlayerType winner = (player1Score > player2Score) ? PlayerType.Player1 : PlayerType.Player2;
+        PlayerType loser = (winner == PlayerType.Player1) ? PlayerType.Player2 : PlayerType.Player1;
+
+        // If this is a Player vs Bot match, treat Player2 as AI
+        if (matchSettings != null && matchSettings.selectedMode == MatchSettings.GameMode.PlayerVsBot)
         {
-            Destroy(currentBall);
-            Debug.Log("[GameManager] Destroyed current ball at game end.");
+            if (winner == PlayerType.Player2) winner = PlayerType.AI;
+            if (loser == PlayerType.Player2) loser = PlayerType.AI;
         }
 
-        Debug.Log("[GameManager] Game Ended");
+        // Send results to UIManager
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ShowWinPanel(winner, loser, matchSettings.selectedMode);
+        }
+
+        Debug.Log($"[GameManager] Game Ended. Mode: {matchSettings.selectedMode}, Winner: {winner}, Loser: {loser}");
     }
 
     void SwitchServer() => currentServer = (currentServer == 1) ? 2 : 1;
 
     void SpawnBall()
     {
-        Debug.Log("[GameManager] SpawnBall called.");
+        if (ballPrefab == null) return;
 
-        if (ballPrefab == null)
-        {
-            Debug.LogError("[GameManager] BallPrefab is null! Assign it in the Inspector.");
-            return;
-        }
-
-        if (currentBall != null)
-        {
-            Destroy(currentBall);
-            Debug.Log("[GameManager] Destroyed old ball.");
-        }
+        if (currentBall != null) Destroy(currentBall);
 
         Transform serverPaddle = (currentServer == 1) ? paddle1 : paddle2;
-        if (serverPaddle == null)
-        {
-            Debug.LogError($"[GameManager] Server paddle is null! CurrentServer={currentServer}");
-            return;
-        }
+        if (serverPaddle == null) return;
 
-        Debug.Log($"[GameManager] Spawning ball at server {currentServer} ({serverPaddle.name})");
-
-        // Compute radius
-        float ballRadius = 0.5f;
-        CircleCollider2D ballCol = ballPrefab.GetComponent<CircleCollider2D>();
-        if (ballCol != null)
-            ballRadius = ballCol.radius * ballPrefab.transform.lossyScale.x;
-
-        Vector3 baseDir = (currentServer == 1) ? Vector3.up : Vector3.down;
-
-        float paddleExtentY = 0f;
-        Collider2D paddleCollider = serverPaddle.GetComponent<Collider2D>();
-        if (paddleCollider != null)
-            paddleExtentY = paddleCollider.bounds.extents.y;
-
-        Vector3 spawnPos = serverPaddle.position + baseDir * (paddleExtentY + ballRadius + initialPad);
-
-        // Avoid overlaps
-        int attempts = 0;
-        float nudgeStep = (ballRadius * spawnNudgeStepMultiplier) + 0.05f;
-        bool overlapsPaddle;
-        do
-        {
-            overlapsPaddle = false;
-            Collider2D[] hits = Physics2D.OverlapCircleAll(spawnPos, ballRadius + 0.02f, overlapMask);
-            foreach (var hit in hits)
-            {
-                if (hit == null) continue;
-                if (hit.CompareTag("Paddle") || hit.CompareTag("Paddle2"))
-                {
-                    overlapsPaddle = true;
-                    spawnPos += baseDir * nudgeStep;
-                    attempts++;
-                    break;
-                }
-            }
-        } while (overlapsPaddle && attempts < maxSpawnAdjustAttempts);
-
-        if (attempts > 0)
-            Debug.Log($"[GameManager] Spawn adjusted {attempts} times to avoid paddle overlap. Final spawn: {spawnPos}");
-
+        Vector3 spawnPos = serverPaddle.position + ((currentServer == 1) ? Vector3.up : Vector3.down) * 0.6f;
         currentBall = Instantiate(ballPrefab, spawnPos, Quaternion.identity);
-        Debug.Log("[GameManager] Ball spawned successfully.");
     }
 
-    // ----------------- UI Button Functions -----------------
-    public void ReplayGame()
-    {
-        Debug.Log("[GameManager] Replay clicked!");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
-
-    public void HomeButton()
-    {
-        Debug.Log("[GameManager] Home clicked!");
-        SceneManager.LoadScene("MainMenu");
-    }
+    public void ReplayGame() => SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    public void HomeButton() => SceneManager.LoadScene("MainMenu");
 }
+
 
 
 

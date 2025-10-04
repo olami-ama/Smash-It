@@ -24,7 +24,7 @@ public class AIPaddleMovement : MonoBehaviour
     private Rigidbody2D aiRb;
     private Vector2 physicsTargetPosition;  // target used in FixedUpdate
     private bool loggedFoundBall = false;
-    private bool lastServingState = false;
+   // private bool lastServingState = false;
 
     void Awake()
     {

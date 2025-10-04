@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class MainMenuManager : MonoBehaviour
 {
@@ -7,11 +8,28 @@ public class MainMenuManager : MonoBehaviour
     public GameObject mainMenuPanel;
     public GameObject gameModePanel;
     public GameObject settingsPanel;
-    public GameObject powerUpPanel;   // NEW
+    public GameObject powerUpPanel;
+
+    [Header("UI References")]
+    public TMP_Text coinText;   // shows total coins on main menu
 
     private string pendingScene; // store which scene to load after selecting power-ups
 
-    // --- MAIN MENU ---
+    void Start()
+    {
+        UpdateCoinDisplay();
+    }
+
+    // COINS DISPLAY 
+    public void UpdateCoinDisplay()
+    {
+        if (coinText != null && CoinManager.Instance != null)
+        {
+            coinText.text = "Coins: " + CoinManager.Instance.GetCoins();
+        }
+    }
+
+    //  MAIN MENU 
     public void OpenGameModeMenu()
     {
         mainMenuPanel.SetActive(false);
@@ -30,7 +48,7 @@ public class MainMenuManager : MonoBehaviour
         Debug.Log("Game Quit!");
     }
 
-    // --- GAME MODES ---
+    // GAME MODES
     public void StartPlayerVsBot()
     {
         pendingScene = "AI Game Screen";  // remember which scene to load
@@ -55,12 +73,15 @@ public class MainMenuManager : MonoBehaviour
         SceneManager.LoadScene(pendingScene);
     }
 
-    // --- NAVIGATION ---
+    // NAVIGATION 
     public void BackToMainMenu()
     {
         gameModePanel.SetActive(false);
         settingsPanel.SetActive(false);
         powerUpPanel.SetActive(false);
         mainMenuPanel.SetActive(true);
+
+        // Refresh coin display in case player earned/spent coins before returning
+        UpdateCoinDisplay();
     }
 }

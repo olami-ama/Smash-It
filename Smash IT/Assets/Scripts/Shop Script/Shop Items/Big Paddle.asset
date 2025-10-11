@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 52277904115eff14893c6fb19fddb026, type: 3}
-  m_Name: BigPaddleItem
+  m_Name: Big Paddle
   m_EditorClassIdentifier: Assembly-CSharp::ShopItem
-  itemName: Big Paddle
-  cost: 150
+  itemName: BigPaddle
+  cost: 25
   icon: {fileID: -198999184104578618, guid: e21428e998196c3448c1bea3f4d000f4, type: 3}
   isConsumable: 1

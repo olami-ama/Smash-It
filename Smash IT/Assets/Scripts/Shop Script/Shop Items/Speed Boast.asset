@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52277904115eff14893c6fb19fddb026, type: 3}
   m_Name: Speed Boast
   m_EditorClassIdentifier: Assembly-CSharp::ShopItem
-  itemName: Speed Boaster
-  cost: 100
+  itemName: SpeedBoost
+  cost: 25
   icon: {fileID: 2723692681139647327, guid: df4fd901071ac8b4eb53d044d249311d, type: 3}
   isConsumable: 1

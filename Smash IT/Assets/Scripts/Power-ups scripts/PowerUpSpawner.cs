@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class PowerUpSpawner : MonoBehaviour
 {
     [Header("Power-Up Prefabs (drag them here)")]
-    public GameObject[] powerUpPrefabs;
+    public GameObject[] powerUpPrefabs; // All power-up prefabs
 
     [Header("Spawn Timing")]
     public float firstDelay = 3f;
@@ -16,10 +16,7 @@ public class PowerUpSpawner : MonoBehaviour
     public BoxCollider2D bottomArea;
 
     [Header("Limit Settings")]
-    public int maxPowerUps = 3; // maximum allowed in scene at once
-
-    [Header("Match Settings (ScriptableObject)")]
-    public MatchSettings matchSettings; // assign in inspector
+    public int maxPowerUps = 4; // maximum allowed in scene at once
 
     private bool spawnOnBottom = true;
 
@@ -27,16 +24,17 @@ public class PowerUpSpawner : MonoBehaviour
     {
         if (powerUpPrefabs.Length == 0)
         {
-            Debug.LogWarning("[Spawner] No power-up prefabs assigned!");
+            Debug.LogWarning("[PowerUpSpawner] No power-up prefabs assigned!");
             return;
         }
 
         StartCoroutine(SpawnLoop());
     }
+
     void Update()
     {
-        if (GameManager.Instance.IsGameOver()) return;  // stop spawning
-                                                        
+        if (GameManager.Instance != null && GameManager.Instance.IsGameOver())
+            return;  // Stop spawning when game ends
     }
 
     private IEnumerator SpawnLoop()
@@ -60,34 +58,37 @@ public class PowerUpSpawner : MonoBehaviour
     {
         var candidates = new List<GameObject>();
 
-        // If matchSettings is missing, spawn all
-        if (matchSettings == null)
-        {
-            Debug.LogWarning("[Spawner] MatchSettings missing! Spawning all power-ups.");
-            candidates.AddRange(powerUpPrefabs);
-        }
-        else
+        // If the player selected power-ups, only spawn those
+        if (MatchSettingsData.selectedPowerUps != null && MatchSettingsData.selectedPowerUps.Count > 0)
         {
             foreach (var p in powerUpPrefabs)
             {
                 PowerUpPickup pickup = p.GetComponent<PowerUpPickup>();
                 if (pickup == null)
                 {
-                    Debug.LogWarning($"[Spawner] Prefab {p.name} has no PowerUpPickup script!");
+                    Debug.LogWarning($"[Spawner] Prefab {p.name} missing PowerUpPickup script!");
                     continue;
                 }
 
-                if (matchSettings.allowedPowerUps.Contains(pickup.type))
+                // Debug line moved here 
+                Debug.Log($"[Spawner] Checking prefab {p.name} type {pickup.type} against selected: {string.Join(", ", MatchSettingsData.selectedPowerUps)}");
+
+                if (MatchSettingsData.selectedPowerUps.Contains(pickup.type.ToString()))
                 {
                     candidates.Add(p);
                 }
             }
-        }
 
-        if (candidates.Count == 0)
+            if (candidates.Count == 0)
+            {
+                Debug.Log("[Spawner] No matching power-ups found from player selection!");
+                return;
+            }
+        }
+        else
         {
-            Debug.Log("[Spawner] No allowed power-ups to spawn (check MatchSettings).");
-            return;
+            // If nothing was selected, spawn all
+            candidates.AddRange(powerUpPrefabs);
         }
 
         // Pick one randomly

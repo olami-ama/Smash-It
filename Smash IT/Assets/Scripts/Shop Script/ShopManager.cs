@@ -3,176 +3,102 @@ using System.Collections.Generic;
 
 public class ShopManager : MonoBehaviour
 {
-    public static ShopManager Instance;  // Singleton so any script can call ShopManager
+    public static ShopManager Instance;  // Singleton for global access
 
-    [Header("Items available in shop")]
-    public List<ShopItem> shopItems = new List<ShopItem>(); // Drag & drop items in the Inspector
+    [Header("Available Shop Items")]
+    public List<ShopItem> shopItems = new List<ShopItem>(); // All power-ups or items in the shop
 
-    // Consumables: itemName -> how many the player owns
-    private Dictionary<string, int> consumableInventory = new Dictionary<string, int>();
-
-    // Permanent unlocks (like skins)
-    private HashSet<string> ownedPermanentItems = new HashSet<string>();
-
-    // Items selected for the next match
-    private List<string> selectedItems = new List<string>();
-
-    // Keys for saving in PlayerPrefs
-    private const string CONSUMABLE_KEY = "ConsumableInventory";
-    private const string PERMANENT_KEY = "PermanentItems";
-
-    [Header("Selection Rules")]
-    public int maxSelections = 3; // Max boosters player can pick before a match
-
-    void Awake()
+    private void Awake()
     {
         if (Instance == null)
+        {
             Instance = this;
+            DontDestroyOnLoad(gameObject); // ensures ShopManager persists between scenes
+        }
         else
+        {
             Destroy(gameObject);
-
-        LoadInventory(); // Load items from previous sessions
-        selectedItems.Clear(); // Always start with empty selection
+        }
     }
 
-    // ------------------- BUYING -------------------
-    public bool BuyItem(ShopItem item, int quantity = 1)
+
+    // Add coins when player earns them
+    public void AddCoins(int amount)
     {
+        CoinManager.Instance.AddCoins(amount);
+    }
+
+    // Spend coins when buying items
+    public bool SpendCoins(int cost)
+    {
+        return CoinManager.Instance.SpendCoins(cost);
+    }
+
+    // Buy an item (consumable or permanent)
+    public void BuyItem(ShopItem item, int quantity = 1)
+    {
+        if (item == null) return;
+
+        int totalCost = item.cost * quantity;
+
         // Check if player has enough coins
-        if (CoinManager.Instance.GetCoins() < item.cost)
+        if (!SpendCoins(totalCost))
         {
-            Debug.Log("[ShopManager] Not enough coins!");
-            return false;
+            Debug.Log($"[ShopManager] Not enough coins to buy {item.itemName}!");
+            return;
         }
 
-        // Deduct coins
-        CoinManager.Instance.SpendCoins(item.cost);
-
+        // Handle consumables (can have multiple)
         if (item.isConsumable)
         {
-            // If consumable, add to inventory count
-            if (!consumableInventory.ContainsKey(item.itemName))
-                consumableInventory[item.itemName] = 0;
-
-            consumableInventory[item.itemName] += quantity;
-            Debug.Log($"[ShopManager] Bought {quantity}x {item.itemName}. Total now: {consumableInventory[item.itemName]}");
+            int current = PlayerPrefs.GetInt(item.itemName + "_Owned", 0);
+            PlayerPrefs.SetInt(item.itemName + "_Owned", current + quantity);
         }
         else
         {
-            // If permanent, add once
-            ownedPermanentItems.Add(item.itemName);
-            Debug.Log($"[ShopManager] Permanently unlocked {item.itemName}");
+            // Permanents can only be bought once
+            PlayerPrefs.SetInt(item.itemName + "_Owned", 1);
         }
-
-        SaveInventory();
-        return true;
-    }
-
-    // ------------------- SELECTION -------------------
-    public bool SelectItem(string itemName)
-    {
-        // Permanent item check
-        if (ownedPermanentItems.Contains(itemName))
-        {
-            if (selectedItems.Count < maxSelections)
-            {
-                selectedItems.Add(itemName);
-                return true;
-            }
-        }
-        // Consumable check
-        else if (consumableInventory.ContainsKey(itemName) && consumableInventory[itemName] > 0)
-        {
-            if (selectedItems.Count < maxSelections)
-            {
-                selectedItems.Add(itemName);
-                return true;
-            }
-        }
-
-        Debug.Log($"[ShopManager] Cannot select {itemName} (not owned or none left).");
-        return false;
-    }
-
-    public void ConfirmSelections()
-    {
-        // Deduct consumables when match starts
-        foreach (var item in selectedItems)
-        {
-            if (consumableInventory.ContainsKey(item))
-            {
-                consumableInventory[item] = Mathf.Max(0, consumableInventory[item] - 1);
-                Debug.Log($"[ShopManager] Used 1 {item}. Remaining: {consumableInventory[item]}");
-            }
-        }
-
-        SaveInventory();
-    }
-
-    public void ClearSelections()
-    {
-        selectedItems.Clear();
-    }
-
-    public List<string> GetSelectedItems()
-    {
-        return new List<string>(selectedItems); // Return a copy so external scripts don’t edit directly
-    }
-
-    // ------------------- HELPERS -------------------
-    public int GetConsumableCount(string itemName)
-    {
-        return consumableInventory.ContainsKey(itemName) ? consumableInventory[itemName] : 0;
-    }
-
-    public bool HasPermanent(string itemName)
-    {
-        return ownedPermanentItems.Contains(itemName);
-    }
-
-    // ------------------- SAVE / LOAD -------------------
-    private void SaveInventory()
-    {
-        // Save consumables as "Item:Count"
-        List<string> consumableData = new List<string>();
-        foreach (var kvp in consumableInventory)
-            consumableData.Add($"{kvp.Key}:{kvp.Value}");
-        PlayerPrefs.SetString(CONSUMABLE_KEY, string.Join(",", consumableData));
-
-        // Save permanent items as list
-        PlayerPrefs.SetString(PERMANENT_KEY, string.Join(",", ownedPermanentItems));
 
         PlayerPrefs.Save();
+        Debug.Log($"[ShopManager] Bought {quantity}x {item.itemName}. Total now: {GetConsumableCount(item.itemName)}");
+
+        RefreshAllItemsUI(); // Refresh UI display
     }
 
-    private void LoadInventory()
+    // Deduct consumables when used
+    public void ConsumeItem(string itemName, int amount = 1)
     {
-        consumableInventory.Clear();
-        ownedPermanentItems.Clear();
+        int current = PlayerPrefs.GetInt(itemName + "_Owned", 0);
+        current = Mathf.Max(0, current - amount);
+        PlayerPrefs.SetInt(itemName + "_Owned", current);
+        PlayerPrefs.Save();
 
-        // Load consumables
-        string consumableData = PlayerPrefs.GetString(CONSUMABLE_KEY, "");
-        if (!string.IsNullOrEmpty(consumableData))
+        Debug.Log($"[ShopManager] Consumed {amount}x {itemName}. Remaining: {current}");
+        RefreshAllItemsUI(); // Update shop display
+    }
+
+    // Get how many of a consumable the player owns
+    public int GetConsumableCount(string itemName)
+    {
+        return PlayerPrefs.GetInt(itemName + "_Owned", 0);
+    }
+
+   
+       //  Refresh all UI shop items
+public void RefreshAllItemsUI()
+    {
+        
+        foreach (var ui in FindObjectsByType<ShopUiItem>(FindObjectsSortMode.None))
         {
-            string[] entries = consumableData.Split(',');
-            foreach (string entry in entries)
+            if (ui.item != null)
             {
-                if (string.IsNullOrEmpty(entry)) continue;
-                string[] parts = entry.Split(':');
-                if (parts.Length == 2 && int.TryParse(parts[1], out int qty))
-                {
-                    consumableInventory[parts[0]] = qty;
-                }
+                int owned = GetConsumableCount(ui.item.itemName);
+                ui.UpdateOwnedText(owned);
             }
         }
 
-        // Load permanents
-        string permanentData = PlayerPrefs.GetString(PERMANENT_KEY, "");
-        if (!string.IsNullOrEmpty(permanentData))
-        {
-            string[] items = permanentData.Split(',');
-            foreach (string i in items)
-                if (!string.IsNullOrEmpty(i)) ownedPermanentItems.Add(i);
-        }
+        Debug.Log("[ShopManager] Refreshed all shop item displays.");
     }
+
 }

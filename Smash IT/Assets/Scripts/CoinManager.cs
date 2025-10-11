@@ -1,11 +1,13 @@
 using UnityEngine;
-using System; 
+using System;
 
 public class CoinManager : MonoBehaviour
 {
-  
     public static CoinManager Instance;   // Singleton for easy access
     private int coins = 0;
+
+    [Header("Starting Coins (for new players or reset)")]
+    public int defaultStartingCoins = 100; //  You can change this in the Inspector
 
     public event Action<int> OnCoinsChanged;  // Event for UI updates
 
@@ -13,11 +15,11 @@ public class CoinManager : MonoBehaviour
 
     private void Awake()
     {
-        // Singleton pattern
+        // Singleton setup
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Keep between scenes
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -28,11 +30,19 @@ public class CoinManager : MonoBehaviour
     private void Start()
     {
         LoadCoins();
-        AddCoins(500); // start with 500 coins for testing
+
+        // Force reset for testing
+        coins = 100; //  Set your desired starting amount
+        SaveCoins();
+        OnCoinsChanged?.Invoke(coins);
     }
 
-    
-    // Add coins after a match
+
+
+
+
+
+    // Core Methods 
     public void AddCoins(int amount)
     {
         coins += amount;
@@ -40,7 +50,6 @@ public class CoinManager : MonoBehaviour
         OnCoinsChanged?.Invoke(coins);
     }
 
-    // Spend coins (returns true if successful)
     public bool SpendCoins(int amount)
     {
         if (coins >= amount)
@@ -57,13 +66,12 @@ public class CoinManager : MonoBehaviour
         }
     }
 
-    // Get current coins
     public int GetCoins()
     {
         return coins;
     }
 
-    // --- Save / Load ---
+    // Save / Load
     private void SaveCoins()
     {
         PlayerPrefs.SetInt(COIN_KEY, coins);
@@ -72,7 +80,15 @@ public class CoinManager : MonoBehaviour
 
     private void LoadCoins()
     {
-        coins = PlayerPrefs.GetInt(COIN_KEY, 0); // default 0
+        coins = PlayerPrefs.GetInt(COIN_KEY, 0);
+    }
+
+    //  reset from a button or editor
+    public void ResetCoins()
+    {
+        coins = defaultStartingCoins;
+        SaveCoins();
+        OnCoinsChanged?.Invoke(coins);
+        Debug.Log($"[CoinManager] Coins reset to {coins}");
     }
 }
-

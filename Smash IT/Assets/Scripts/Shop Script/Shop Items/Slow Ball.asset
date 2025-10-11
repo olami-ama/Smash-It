@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52277904115eff14893c6fb19fddb026, type: 3}
   m_Name: Slow Ball
   m_EditorClassIdentifier: Assembly-CSharp::ShopItem
-  itemName: Slow Ball
-  cost: 50
+  itemName: SlowBall
+  cost: 25
   icon: {fileID: 2471241703887403631, guid: a54e75c80e22b28459cd3584c476f75a, type: 3}
   isConsumable: 1

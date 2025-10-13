@@ -3,13 +3,13 @@ using System;
 
 public class CoinManager : MonoBehaviour
 {
-    public static CoinManager Instance;   // Singleton for easy access
+    public static CoinManager Instance;
     private int coins = 0;
 
     [Header("Starting Coins (for new players or reset)")]
-    public int defaultStartingCoins = 100; //  You can change this in the Inspector
+    public int defaultStartingCoins = 100;
 
-    public event Action<int> OnCoinsChanged;  // Event for UI updates
+    public event Action<int> OnCoinsChanged;
 
     private const string COIN_KEY = "PlayerCoins";
 
@@ -31,23 +31,26 @@ public class CoinManager : MonoBehaviour
     {
         LoadCoins();
 
-        // Force reset for testing
-        coins = 100; //  Set your desired starting amount
-        SaveCoins();
+        // If no saved coins found, set to default
+        if (coins <= 0)
+        {
+            coins = defaultStartingCoins;
+            SaveCoins();
+        }
+
+        // Notify UI on startup
         OnCoinsChanged?.Invoke(coins);
+
+        Debug.Log($"[CoinManager] Loaded coins: {coins}");
     }
 
-
-
-
-
-
-    // Core Methods 
+    // --- Core Methods ---
     public void AddCoins(int amount)
     {
         coins += amount;
         SaveCoins();
         OnCoinsChanged?.Invoke(coins);
+        Debug.Log($"[CoinManager] Added {amount}. Total: {coins}");
     }
 
     public bool SpendCoins(int amount)
@@ -57,11 +60,12 @@ public class CoinManager : MonoBehaviour
             coins -= amount;
             SaveCoins();
             OnCoinsChanged?.Invoke(coins);
+            Debug.Log($"[CoinManager] Spent {amount}. Remaining: {coins}");
             return true;
         }
         else
         {
-            Debug.Log("Not enough coins!");
+            Debug.LogWarning("[CoinManager] Not enough coins!");
             return false;
         }
     }
@@ -71,7 +75,7 @@ public class CoinManager : MonoBehaviour
         return coins;
     }
 
-    // Save / Load
+    // --- Save / Load ---
     private void SaveCoins()
     {
         PlayerPrefs.SetInt(COIN_KEY, coins);
@@ -83,7 +87,7 @@ public class CoinManager : MonoBehaviour
         coins = PlayerPrefs.GetInt(COIN_KEY, 0);
     }
 
-    //  reset from a button or editor
+    // --- Reset from button or editor ---
     public void ResetCoins()
     {
         coins = defaultStartingCoins;

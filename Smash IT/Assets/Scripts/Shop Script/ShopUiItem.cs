@@ -8,10 +8,10 @@ public class ShopUiItem : MonoBehaviour
     public ShopItem item;            // The ScriptableObject with item info
 
     [Header("UI References")]
-    public TMP_Text nameText;        // Item name
-    public TMP_Text costText;        // Item cost
-    public TMP_Text ownedText;       // Amount owned
-    public Image icon;               // Sprite image
+    public TMP_Text nameText;        // Item name text
+    public TMP_Text costText;        // Item cost text
+    public TMP_Text ownedText;       // Amount owned text
+    public Image icon;               // Item icon
     public Button buyButton;         // Buy button
 
     private void Start()
@@ -22,28 +22,45 @@ public class ShopUiItem : MonoBehaviour
             return;
         }
 
-        // Initialize display
+        // Initialize display once when the shop loads
+        SetupDisplay();
+
+        // Add button listener
+        buyButton.onClick.AddListener(Buy);
+    }
+
+    // Sets up the display for this item
+    private void SetupDisplay()
+    {
         nameText.text = item.itemName;
-        costText.text = "Cost: " + item.cost;
+        costText.text = $"Cost: {item.cost}";
+
+        // Load the current owned count from ShopManager
         UpdateOwnedText(ShopManager.Instance.GetConsumableCount(item.itemName));
 
         if (icon != null)
             icon.sprite = item.icon;
-
-        // Add button listener
-        buyButton.onClick.AddListener(() => Buy());
     }
 
     // Called when buy button is clicked
-    public void Buy()
+    private void Buy()
     {
         ShopManager.Instance.BuyItem(item, 1);
+        // Immediately refresh the owned count after buying
+        UpdateOwnedText(ShopManager.Instance.GetConsumableCount(item.itemName));
     }
 
-    //  Update the number of items owned
+    // Updates the number of items owned (called by ShopManager.RefreshAllItemsUI)
     public void UpdateOwnedText(int owned)
     {
-        ownedText.text = "Owned: " + owned;
+        ownedText.text = $"Owned: {owned}";
+    }
+
+    //  force refresh after PlayerPrefs reset
+    private void OnEnable()
+    {
+        // Whenever this UI reactivates, reload latest data
+        if (ShopManager.Instance != null && item != null)
+            UpdateOwnedText(ShopManager.Instance.GetConsumableCount(item.itemName));
     }
 }
-

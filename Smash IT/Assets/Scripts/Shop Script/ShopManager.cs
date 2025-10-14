@@ -84,11 +84,9 @@ public class ShopManager : MonoBehaviour
         return PlayerPrefs.GetInt(itemName + "_Owned", 0);
     }
 
-   
-       //  Refresh all UI shop items
-public void RefreshAllItemsUI()
+
+    public void RefreshAllItemsUI()
     {
-        
         foreach (var ui in FindObjectsByType<ShopUiItem>(FindObjectsSortMode.None))
         {
             if (ui.item != null)
@@ -98,7 +96,9 @@ public void RefreshAllItemsUI()
             }
         }
 
+        Canvas.ForceUpdateCanvases(); //  force immediate UI refresh
         Debug.Log("[ShopManager] Refreshed all shop item displays.");
     }
+
 
 }

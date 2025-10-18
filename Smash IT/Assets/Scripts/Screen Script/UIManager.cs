@@ -126,6 +126,9 @@ private IEnumerator InitializeCoinUI()
         if (loseText != null) loseText.text = loserLabel;
         if (coinsEarnedText != null) coinsEarnedText.text = coinsText;
 
+        FindObjectOfType<TriviaManager>()?.ShowRandomQuestion();
+
+
         Debug.Log($"[UIManager] Mode: {mode}, Winner: {winner}, Loser: {loser}. {coinsText}");
     }
 

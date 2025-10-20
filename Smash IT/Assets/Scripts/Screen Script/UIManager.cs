@@ -13,14 +13,14 @@ public class UIManager : MonoBehaviour
     [Header("Win Panel UI")]
     public TMP_Text winText;
     public TMP_Text loseText;
-    public TMP_Text coinsEarnedText;
+    public TMP_Text coinsEarnedText;   // Coins shown on Win Panel
 
     [Header("Score UI")]
     public TMP_Text player1ScoreText;
     public TMP_Text player2ScoreText;
 
     [Header("Economy")]
-    public TMP_Text coinText; //  Shows current total coins on screen (Main Menu / HUD)
+    public TMP_Text mainMenuCoinText;   // Coins shown in Main Menu / HUD
     public int playerWinReward = 100;
     public int aiWinPenalty = 50;
 
@@ -37,34 +37,30 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        //  Ensure subscription AFTER CoinManager is ready
+        // Subscribe to coin updates once CoinManager is ready
         StartCoroutine(InitializeCoinUI());
-        
         Debug.Log("[UIManager] Loaded. Scene: " + SceneManager.GetActiveScene().name);
-        StartCoroutine(InitializeCoinUI());
-     }
+    }
 
-private IEnumerator InitializeCoinUI()
+    private IEnumerator InitializeCoinUI()
     {
-        // Small delay to let CoinManager initialize first
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.1f); // Wait for CoinManager init
 
         if (CoinManager.Instance != null)
         {
-            CoinManager.Instance.OnCoinsChanged -= UpdateCoinText; // prevent duplicates
+            CoinManager.Instance.OnCoinsChanged -= UpdateCoinText;
             CoinManager.Instance.OnCoinsChanged += UpdateCoinText;
 
-            //  Force coin text to refresh immediately
+            // Force refresh for Main Menu display only
             UpdateCoinText(CoinManager.Instance.GetCoins());
         }
     }
 
-
-    // Updates the coin UI text whenever coins change
+    // Updates Main Menu coin display only (not Win Panel)
     public void UpdateCoinText(int currentCoins)
     {
-        if (coinText != null)
-            coinText.text =  "Coins: " +  currentCoins.ToString();
+        if (mainMenuCoinText != null)
+            mainMenuCoinText.text = "Coins: " + currentCoins;
     }
 
     public void UpdateScoreUI(int p1, int p2)
@@ -83,56 +79,86 @@ private IEnumerator InitializeCoinUI()
 
         string winnerLabel = "";
         string loserLabel = "";
-        string coinsText = "";
+        string rewardText = "";
+        int rewardEarned = 0;
+        
+        
 
+        // Reward Logic
         if (mode == MatchSettings.GameMode.PlayerVsBot)
         {
             if (winner == PlayerType.AI)
             {
-                // AI won
                 winnerLabel = "You Lose";
                 loserLabel = "AI Wins!";
 
                 if (CoinManager.Instance != null)
                 {
-                    int current = CoinManager.Instance.GetCoins();
-                    int taken = Mathf.Min(aiWinPenalty, current);
-                    CoinManager.Instance.SpendCoins(taken);
-                    coinsText = $"Lost: {taken}\nTotal Coins: {CoinManager.Instance.GetCoins()}";
+                    int penalty = Mathf.Min(aiWinPenalty, CoinManager.Instance.GetCoins());
+                    CoinManager.Instance.SpendCoins(penalty);
+                    rewardEarned = -penalty;
                 }
             }
             else
             {
-                // Player won
                 winnerLabel = "You Win!";
                 loserLabel = "AI";
 
                 if (CoinManager.Instance != null)
                 {
                     CoinManager.Instance.AddCoins(playerWinReward);
-                    coinsText = $"Reward: {playerWinReward}\nTotal Coins: {CoinManager.Instance.GetCoins()}";
+                    rewardEarned = playerWinReward;
                 }
             }
         }
         else if (mode == MatchSettings.GameMode.PlayerVsPlayer)
         {
-            // Multiplayer
-            winnerLabel = winner.ToString() + " Wins!";
+            winnerLabel = winner + " Wins!";
             loserLabel = loser.ToString();
-            coinsText = ""; // no rewards in multiplayer
         }
 
-        if (winText != null) winText.text = winnerLabel;
-        if (loseText != null) loseText.text = loserLabel;
-        if (coinsEarnedText != null) coinsEarnedText.text = coinsText;
+        // Update UI 
+        if (winText != null)
+            winText.text = winnerLabel;
+        if (loseText != null)
+            loseText.text = loserLabel;
 
-        FindObjectOfType<TriviaManager>()?.ShowRandomQuestion();
+        if (coinsEarnedText != null)
+        {
+            if (rewardEarned > 0)
+                rewardText = $"{rewardEarned} Coins Earned!";
+            else if (rewardEarned < 0)
+                rewardText = $"{Mathf.Abs(rewardEarned)} Coins Lost!";
+            else
+                rewardText = "";
+
+            coinsEarnedText.text = rewardText;
+            Debug.Log($"[UIManager] Updated coinsEarnedText: {rewardText}");
+        }
 
 
-        Debug.Log($"[UIManager] Mode: {mode}, Winner: {winner}, Loser: {loser}. {coinsText}");
+        Debug.Log($"[UIManager] Game Ended — Winner: {winnerLabel}, Reward: {rewardEarned}");
+
+        // Delay Trivia popup so it appears above the Win Panel
+        StartCoroutine(ShowTriviaAfterDelay(1.2f));
+    }
+
+    //  Delay trivia popup for smoother flow 
+    private IEnumerator ShowTriviaAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        var triviaManager = FindFirstObjectByType<TriviaManager>();
+        if (triviaManager != null)
+        {
+            triviaManager.ShowRandomQuestion(); // appears above Win Panel
+        }
+        else
+        {
+            Debug.LogWarning("[UIManager] TriviaManager not found in scene.");
+        }
     }
 
     public void ReplayGame() => SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     public void GoToMainMenu() => SceneManager.LoadScene("MainMenu");
 }
-

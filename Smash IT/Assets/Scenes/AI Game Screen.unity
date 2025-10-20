@@ -154,7 +154,7 @@ MonoBehaviour:
   coinsEarnedText: {fileID: 2124956822}
   player1ScoreText: {fileID: 1993874083}
   player2ScoreText: {fileID: 1424487587}
-  coinText: {fileID: 2124956822}
+  mainMenuCoinText: {fileID: 2124956822}
   playerWinReward: 100
   aiWinPenalty: 50
 --- !u!4 &36476206
@@ -3126,7 +3126,7 @@ MonoBehaviour:
     - A) Racketball
     - B) Table Tennis
     - C) Paddle Ball
-    correctIndex: 1
+    correctIndex: 2
 --- !u!4 &1855979480
 Transform:
   m_ObjectHideFlags: 0

@@ -71,7 +71,7 @@ public class CoinManager : MonoBehaviour
             return false;
         }
     }
-
+   
     public int GetCoins()
     {
         return coins;

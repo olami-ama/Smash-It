@@ -222,7 +222,7 @@ MonoBehaviour:
   coinsEarnedText: {fileID: 0}
   player1ScoreText: {fileID: 0}
   player2ScoreText: {fileID: 0}
-  coinText: {fileID: 737379546}
+  mainMenuCoinText: {fileID: 737379546}
   playerWinReward: 100
   aiWinPenalty: 50
 --- !u!4 &67659501
@@ -4176,7 +4176,7 @@ GameObject:
   - component: {fileID: 737379547}
   - component: {fileID: 737379546}
   m_Layer: 5
-  m_Name: Coins
+  m_Name: MainMenuCoins
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6989,7 +6989,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1153348213
 MonoBehaviour:
   m_ObjectHideFlags: 0

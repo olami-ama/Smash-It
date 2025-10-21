@@ -29,10 +29,12 @@ public class CoinManager : MonoBehaviour
 
     private void Start()
     {
-        LoadCoins();
-
-        // If no saved coins found, set to default
-        if (coins <= 0)
+        // Load coins from PlayerPrefs
+        if (PlayerPrefs.HasKey(COIN_KEY))
+        {
+            LoadCoins();
+        }
+        else
         {
             coins = defaultStartingCoins;
             SaveCoins();

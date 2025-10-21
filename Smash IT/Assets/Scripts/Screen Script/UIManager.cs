@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class UIManager : MonoBehaviour
 {
@@ -19,26 +20,66 @@ public class UIManager : MonoBehaviour
     public TMP_Text player2ScoreText;
 
     [Header("Economy")]
+    public TMP_Text coinText; //  Shows current total coins on screen (Main Menu / HUD)
     public int playerWinReward = 100;
     public int aiWinPenalty = 50;
 
-    void Awake()
+    private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
 
-        if (winPanel != null) winPanel.SetActive(false);
+        if (winPanel != null)
+            winPanel.SetActive(false);
+    }
+
+    private void Start()
+    {
+        //  Ensure subscription AFTER CoinManager is ready
+        StartCoroutine(InitializeCoinUI());
+        
+        Debug.Log("[UIManager] Loaded. Scene: " + SceneManager.GetActiveScene().name);
+        StartCoroutine(InitializeCoinUI());
+     }
+
+private IEnumerator InitializeCoinUI()
+    {
+        // Small delay to let CoinManager initialize first
+        yield return new WaitForSeconds(0.1f);
+
+        if (CoinManager.Instance != null)
+        {
+            CoinManager.Instance.OnCoinsChanged -= UpdateCoinText; // prevent duplicates
+            CoinManager.Instance.OnCoinsChanged += UpdateCoinText;
+
+            //  Force coin text to refresh immediately
+            UpdateCoinText(CoinManager.Instance.GetCoins());
+        }
+    }
+
+
+    // Updates the coin UI text whenever coins change
+    public void UpdateCoinText(int currentCoins)
+    {
+        if (coinText != null)
+            coinText.text =  "Coins: " +  currentCoins.ToString();
     }
 
     public void UpdateScoreUI(int p1, int p2)
     {
-        if (player1ScoreText != null) player1ScoreText.text = "Player 1: " + p1;
-        if (player2ScoreText != null) player2ScoreText.text = "Player 2: " + p2;
+        if (player1ScoreText != null)
+            player1ScoreText.text = "Player 1: " + p1;
+
+        if (player2ScoreText != null)
+            player2ScoreText.text = "Player 2: " + p2;
     }
 
     public void ShowWinPanel(PlayerType winner, PlayerType loser, MatchSettings.GameMode mode)
     {
-        if (winPanel != null) winPanel.SetActive(true);
+        if (winPanel != null)
+            winPanel.SetActive(true);
 
         string winnerLabel = "";
         string loserLabel = "";
@@ -91,3 +132,4 @@ public class UIManager : MonoBehaviour
     public void ReplayGame() => SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     public void GoToMainMenu() => SceneManager.LoadScene("MainMenu");
 }
+

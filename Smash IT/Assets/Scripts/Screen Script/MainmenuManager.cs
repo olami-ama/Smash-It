@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro;
 
 public class MainMenuManager : MonoBehaviour
 {
@@ -11,38 +10,16 @@ public class MainMenuManager : MonoBehaviour
     public GameObject powerUpPanel;    // The panel for pre-match power-up selection
     public GameObject shopPanel;       // The shop panel where players buy items
 
-    [Header("UI References")]
-    public TMP_Text coinText;          // Text that shows the player's current coin balance
-
     private string pendingScene;       // Stores which game scene to load after selection
 
     private void Start()
     {
-        StartCoroutine(InitializeMenu());
-    }
-
-    private System.Collections.IEnumerator InitializeMenu()
-    {
-        yield return null;
-        UpdateCoinDisplay();
-    }
-
-    // Updates the coin display on the main menu
-    public void UpdateCoinDisplay()
-    {
-        if (coinText == null)
-        {
-            Debug.LogWarning("[MainMenuManager] Coin text reference missing!");
-            return;
-        }
-
-        if (CoinManager.Instance == null)
-        {
-            Debug.LogWarning("[MainMenuManager] CoinManager not ready yet!");
-            return;
-        }
-
-        coinText.text = "Coins: " + CoinManager.Instance.GetCoins();
+        // Ensure only main menu is visible at launch
+        mainMenuPanel.SetActive(true);
+        gameModePanel.SetActive(false);
+        settingsPanel.SetActive(false);
+        powerUpPanel.SetActive(false);
+        shopPanel.SetActive(false);
     }
 
     // Opens the Game Mode selection panel
@@ -71,7 +48,6 @@ public class MainMenuManager : MonoBehaviour
     {
         shopPanel.SetActive(false);
         mainMenuPanel.SetActive(true);
-        UpdateCoinDisplay(); // Refresh coin total after spending or earning
     }
 
     // Quits the game (works only in builds)
@@ -123,6 +99,5 @@ public class MainMenuManager : MonoBehaviour
         shopPanel.SetActive(false);
 
         mainMenuPanel.SetActive(true);
-        UpdateCoinDisplay();
     }
 }

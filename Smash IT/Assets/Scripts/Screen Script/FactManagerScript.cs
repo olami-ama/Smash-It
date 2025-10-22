@@ -1,13 +1,12 @@
 ﻿using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
 using System.Collections;
 
 public class FactManagerScript : MonoBehaviour
 {
     [Header("UI References")]
-    public TMP_Text headerText;      // "Did You Know?" title
-    public TMP_Text factText;        // Fact content text
+    public Text factText;            // Fact content text
+    public Text headerText;          // Header text 
     public Image factIcon;           // The light bulb image
     public GameObject factsPanel;    // The full panel container
 
@@ -56,9 +55,9 @@ public class FactManagerScript : MonoBehaviour
         string selectedFact = facts[randomIndex];
         factText.text = selectedFact;
 
-        // Make sure header says "Did You Know?"
+        // Smash Facts
         if (headerText != null)
-            headerText.text = "Did You Know?";
+            headerText.text = " Smash Facts";
 
         // Show the panel and start animation
         factsPanel.SetActive(true);

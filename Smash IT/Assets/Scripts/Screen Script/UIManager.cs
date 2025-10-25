@@ -129,11 +129,24 @@ public class UIManager : MonoBehaviour
                 rewardText = $"{rewardEarned} Coins Earned!";
             else if (rewardEarned < 0)
                 rewardText = $"{Mathf.Abs(rewardEarned)} Coins Lost!";
-            else
-                rewardText = "";
+           
 
             coinsEarnedText.text = rewardText;
             Debug.Log($"[UIManager] Updated coinsEarnedText: {rewardText}");
+        }
+
+        if (rewardEarned > 0) // only play when player wins
+        {
+            var confetti = FindFirstObjectByType<ConfettiManager>();
+            if (confetti != null)
+            {
+                Debug.Log("[UIManager] Calling PlayConfetti()");
+                confetti.PlayConfetti();
+            }
+            else
+            {
+                Debug.LogWarning("[UIManager] ConfettiManager not found!");
+            }
         }
 
 

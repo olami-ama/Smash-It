@@ -13,14 +13,14 @@ public class UIManager : MonoBehaviour
     [Header("Win Panel UI")]
     public TMP_Text winText;
     public TMP_Text loseText;
-    public TMP_Text coinsEarnedText;   // Coins shown on Win Panel
+    public TMP_Text coinsEarnedText; // Coins shown on Win Panel
 
     [Header("Score UI")]
     public TMP_Text player1ScoreText;
     public TMP_Text player2ScoreText;
 
     [Header("Economy")]
-    public TMP_Text mainMenuCoinText;   // Coins shown in Main Menu / HUD
+    public TMP_Text mainMenuCoinText; // Coins shown in Main Menu / HUD
     public int playerWinReward = 100;
     public int aiWinPenalty = 50;
 
@@ -37,26 +37,28 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        // Subscribe to coin updates once CoinManager is ready
         StartCoroutine(InitializeCoinUI());
         Debug.Log("[UIManager] Loaded. Scene: " + SceneManager.GetActiveScene().name);
     }
 
     private IEnumerator InitializeCoinUI()
     {
-        yield return new WaitForSeconds(0.1f); // Wait for CoinManager init
+        yield return new WaitForSeconds(0.2f); // give CoinManager time to spawn
 
         if (CoinManager.Instance != null)
         {
             CoinManager.Instance.OnCoinsChanged -= UpdateCoinText;
             CoinManager.Instance.OnCoinsChanged += UpdateCoinText;
-
-            // Force refresh for Main Menu display only
             UpdateCoinText(CoinManager.Instance.GetCoins());
+        }
+        else
+        {
+            Debug.LogWarning("[UIManager] CoinManager not found — retrying...");
+            yield return new WaitForSeconds(0.5f);
+            StartCoroutine(InitializeCoinUI());
         }
     }
 
-    // Updates Main Menu coin display only (not Win Panel)
     public void UpdateCoinText(int currentCoins)
     {
         if (mainMenuCoinText != null)
@@ -74,6 +76,14 @@ public class UIManager : MonoBehaviour
 
     public void ShowWinPanel(PlayerType winner, PlayerType loser, MatchSettings.GameMode mode)
     {
+        // Retry logic if CoinManager not ready yet
+        if (CoinManager.Instance == null)
+        {
+            Debug.LogWarning("[UIManager] CoinManager not found yet — retrying ShowWinPanel...");
+            StartCoroutine(RetryShowWinPanel(winner, loser, mode));
+            return;
+        }
+
         if (winPanel != null)
             winPanel.SetActive(true);
 
@@ -81,10 +91,8 @@ public class UIManager : MonoBehaviour
         string loserLabel = "";
         string rewardText = "";
         int rewardEarned = 0;
-        
-        
 
-        // Reward Logic
+        //  REWARD LOGIC
         if (mode == MatchSettings.GameMode.PlayerVsBot)
         {
             if (winner == PlayerType.AI)
@@ -92,23 +100,17 @@ public class UIManager : MonoBehaviour
                 winnerLabel = "You Lose";
                 loserLabel = "AI Wins!";
 
-                if (CoinManager.Instance != null)
-                {
-                    int penalty = Mathf.Min(aiWinPenalty, CoinManager.Instance.GetCoins());
-                    CoinManager.Instance.SpendCoins(penalty);
-                    rewardEarned = -penalty;
-                }
+                int penalty = Mathf.Min(aiWinPenalty, CoinManager.Instance.GetCoins());
+                CoinManager.Instance.SpendCoins(penalty);
+                rewardEarned = -penalty;
             }
             else
             {
                 winnerLabel = "You Win!";
                 loserLabel = "AI";
 
-                if (CoinManager.Instance != null)
-                {
-                    CoinManager.Instance.AddCoins(playerWinReward);
-                    rewardEarned = playerWinReward;
-                }
+                CoinManager.Instance.AddCoins(playerWinReward);
+                rewardEarned = playerWinReward;
             }
         }
         else if (mode == MatchSettings.GameMode.PlayerVsPlayer)
@@ -117,54 +119,62 @@ public class UIManager : MonoBehaviour
             loserLabel = loser.ToString();
         }
 
-        // Update UI 
-        if (winText != null)
-            winText.text = winnerLabel;
-        if (loseText != null)
-            loseText.text = loserLabel;
+        // UPDATE UI TEXTS
+        if (winText) winText.text = winnerLabel;
+        if (loseText) loseText.text = loserLabel;
 
         if (coinsEarnedText != null)
         {
             if (rewardEarned > 0)
-                rewardText = $"{rewardEarned} Coins Earned!";
+                rewardText = $"+{rewardEarned} Coins Earned!";
             else if (rewardEarned < 0)
-                rewardText = $"{Mathf.Abs(rewardEarned)} Coins Lost!";
-           
+                rewardText = $"-{Mathf.Abs(rewardEarned)} Coins Lost!";
+            else
+                rewardText = "";
 
             coinsEarnedText.text = rewardText;
             Debug.Log($"[UIManager] Updated coinsEarnedText: {rewardText}");
         }
 
-        if (rewardEarned > 0) // only play when player wins
+        //  CONFETTI EFFECT 
+        if (rewardEarned > 0)
         {
             var confetti = FindFirstObjectByType<ConfettiManager>();
             if (confetti != null)
             {
-                Debug.Log("[UIManager] Calling PlayConfetti()");
                 confetti.PlayConfetti();
-            }
-            else
-            {
-                Debug.LogWarning("[UIManager] ConfettiManager not found!");
+                Debug.Log("[UIManager] Confetti played!");
             }
         }
 
-
         Debug.Log($"[UIManager] Game Ended — Winner: {winnerLabel}, Reward: {rewardEarned}");
 
-        // Delay Trivia popup so it appears above the Win Panel
-        StartCoroutine(ShowTriviaAfterDelay(1.2f));
+        //  TRIVIA POPUP (after 7s) 
+        StartCoroutine(ShowTriviaAfterDelay(7f));
     }
 
-    //  Delay trivia popup for smoother flow 
+    private IEnumerator RetryShowWinPanel(PlayerType winner, PlayerType loser, MatchSettings.GameMode mode)
+    {
+        yield return new WaitForSeconds(0.3f);
+        if (CoinManager.Instance != null)
+            ShowWinPanel(winner, loser, mode);
+    }
+
     private IEnumerator ShowTriviaAfterDelay(float delay)
     {
+        Debug.Log("[UIManager] Waiting before showing trivia...");
         yield return new WaitForSeconds(delay);
 
         var triviaManager = FindFirstObjectByType<TriviaManager>();
         if (triviaManager != null)
         {
-            triviaManager.ShowRandomQuestion(); // appears above Win Panel
+            // Stop confetti before showing trivia
+            var confetti = FindFirstObjectByType<ConfettiManager>();
+            if (confetti != null)
+                confetti.StopConfetti();
+
+            triviaManager.ShowRandomQuestion();
+            Debug.Log("[UIManager] Trivia panel shown after delay.");
         }
         else
         {

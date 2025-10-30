@@ -70,7 +70,6 @@ public class PowerUpSpawner : MonoBehaviour
                     continue;
                 }
 
-                // Debug line moved here 
                 Debug.Log($"[Spawner] Checking prefab {p.name} type {pickup.type} against selected: {string.Join(", ", MatchSettingsData.selectedPowerUps)}");
 
                 if (MatchSettingsData.selectedPowerUps.Contains(pickup.type.ToString()))
@@ -87,8 +86,8 @@ public class PowerUpSpawner : MonoBehaviour
         }
         else
         {
-            // If nothing was selected, spawn all
-            candidates.AddRange(powerUpPrefabs);
+            Debug.Log("[Spawner] No power-ups selected by player. Skipping spawn.");
+            return; //  Stop here if none were selected
         }
 
         // Pick one randomly

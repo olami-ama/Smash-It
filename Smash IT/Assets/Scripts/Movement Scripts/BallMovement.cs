@@ -124,6 +124,9 @@ public class BallMovement : MonoBehaviour
 
         if (collision.collider.CompareTag("Paddle") || collision.collider.CompareTag("Paddle2"))
         {
+            // After calculating reflected velocity...
+            transform.position += (Vector3)(normal * 0.1f); // push slightly away
+
             // horizontal bias from hit offset
             float offset = transform.position.x - collision.collider.transform.position.x;
             reflected += new Vector2(offset * 0.5f, 0f);

@@ -3,8 +3,7 @@ using UnityEngine.SceneManagement;
 
 public enum PlayerType
 {
-    Player1,
-    Player2,
+    Player,
     AI
 }
 
@@ -16,13 +15,13 @@ public class GameManager : MonoBehaviour
 
     [Header("Ball Settings")]
     public GameObject ballPrefab;
-    public Transform paddle1;
-    public Transform paddle2;
+    public Transform playerPaddle;
+    public Transform aiPaddle;
 
     public static GameManager Instance;
 
-    private int player1Score = 0;
-    private int player2Score = 0;
+    private int playerScore = 0;
+    private int aiScore = 0;
     private int currentServer = 1;
     private GameObject currentBall;
     private bool isGameOver = false;
@@ -37,7 +36,7 @@ public class GameManager : MonoBehaviour
     {
         isGameOver = false;
         SpawnBall();
-        UIManager.Instance.UpdateScoreUI(player1Score, player2Score);
+        UIManager.Instance.UpdateScoreUI(playerScore, aiScore);
     }
 
     public bool IsGameOver() => isGameOver;
@@ -46,12 +45,13 @@ public class GameManager : MonoBehaviour
     {
         if (isGameOver) return;
 
-        if (playerNumber == 1) player1Score++;
-        else player2Score++;
+        // playerNumber, 1, Player2,  AI
+        if (playerNumber == 1) playerScore++;
+        else aiScore++;
 
-        UIManager.Instance.UpdateScoreUI(player1Score, player2Score);
+        UIManager.Instance.UpdateScoreUI(playerScore, aiScore);
 
-        if (player1Score >= winningScore || player2Score >= winningScore)
+        if (playerScore >= winningScore || aiScore >= winningScore)
         {
             EndGame();
         }
@@ -62,29 +62,33 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void EndGame()
+    public void EndGame()
     {
         isGameOver = true;
         if (currentBall != null) Destroy(currentBall);
 
-        // Determine winner or loser
-        PlayerType winner = (player1Score > player2Score) ? PlayerType.Player1 : PlayerType.Player2;
-        PlayerType loser = (winner == PlayerType.Player1) ? PlayerType.Player2 : PlayerType.Player1;
+        PlayerType winner = (playerScore > aiScore) ? PlayerType.Player : PlayerType.AI;
+        PlayerType loser = (winner == PlayerType.Player) ? PlayerType.AI : PlayerType.Player;
 
-        // If this is a Player vs Bot match, treat Player2 as AI
-        if (matchSettings != null && matchSettings.selectedMode == MatchSettings.GameMode.PlayerVsBot)
+        if (matchSettings == null)
         {
-            if (winner == PlayerType.Player2) winner = PlayerType.AI;
-            if (loser == PlayerType.Player2) loser = PlayerType.AI;
+            Debug.LogWarning("[GameManager] MatchSettings is missing! Assign it in the inspector.");
+            UIManager.Instance?.ShowLosePanel();
+            return;
         }
 
-        // Send results to UIManager
-        if (UIManager.Instance != null)
+        if (matchSettings.selectedMode == MatchSettings.GameMode.EndlessMode)
         {
-            UIManager.Instance.ShowWinPanel(winner, loser, matchSettings.selectedMode);
+            UIManager.Instance.ShowEndlessGameOver(winner);
         }
+        else if (matchSettings.selectedMode == MatchSettings.GameMode.LevelMode)
+        {
+            if (winner == PlayerType.Player)
+                UIManager.Instance.ShowWinPanel(winner, loser, matchSettings.selectedMode);
+            else
+                UIManager.Instance.ShowLosePanel();
 
-        Debug.Log($"[GameManager] Game Ended. Mode: {matchSettings.selectedMode}, Winner: {winner}, Loser: {loser}");
+        }
     }
 
     void SwitchServer() => currentServer = (currentServer == 1) ? 2 : 1;
@@ -92,10 +96,9 @@ public class GameManager : MonoBehaviour
     void SpawnBall()
     {
         if (ballPrefab == null) return;
-
         if (currentBall != null) Destroy(currentBall);
 
-        Transform serverPaddle = (currentServer == 1) ? paddle1 : paddle2;
+        Transform serverPaddle = (currentServer == 1) ? playerPaddle : aiPaddle;
         if (serverPaddle == null) return;
 
         Vector3 spawnPos = serverPaddle.position + ((currentServer == 1) ? Vector3.up : Vector3.down) * 0.6f;
@@ -105,7 +108,6 @@ public class GameManager : MonoBehaviour
     public void ReplayGame() => SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     public void HomeButton() => SceneManager.LoadScene("MainMenu");
 }
-
 
 
 

@@ -24,7 +24,11 @@ public class AIPaddleMovement : MonoBehaviour
     private Rigidbody2D aiRb;
     private Vector2 physicsTargetPosition;  // target used in FixedUpdate
     private bool loggedFoundBall = false;
-   // private bool lastServingState = false;
+    // private bool lastServingState = false;
+
+    private float reactionDelay = 0.5f;
+    private float nextMoveTime = 0f;
+
 
     void Awake()
     {
@@ -41,6 +45,8 @@ public class AIPaddleMovement : MonoBehaviour
 
     void Update()
     {
+        if (Time.time < nextMoveTime) return; // wait for delay before moving again
+
         //  avoid NullReference if GameManager not set up
         if (GameManager.Instance != null && GameManager.Instance.IsGameOver()) return;
 
@@ -83,6 +89,7 @@ public class AIPaddleMovement : MonoBehaviour
             {
                 if (debugVerbose) Debug.Log($"[AI] Serving ball from {name} (dist {dist:F2})");
                 ballMovement.LaunchFromPaddle(transform);
+                nextMoveTime = Time.time + reactionDelay; // prevent immediate follow
             }
 
             return;
@@ -100,7 +107,12 @@ public class AIPaddleMovement : MonoBehaviour
 
         Vector2 toPaddle = (Vector2)aiRb.position - (Vector2)ball.position;
         bool ballComingTowardMe = Vector2.Dot(v, toPaddle) > 0f;
-        if (!ballComingTowardMe) return;
+
+        // Skip following if the ball is not coming toward AI or too close already
+        if (!ballComingTowardMe || Vector2.Distance(ball.position, aiRb.position) < 1.0f)
+            return;
+
+
 
         // Compute follow target Optionally predict where the ball will be at this paddle Y (simple linear).
         float targetXFollow = ball.position.x;

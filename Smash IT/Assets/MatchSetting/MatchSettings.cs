@@ -6,8 +6,8 @@ public class MatchSettings : ScriptableObject
 {
     public enum GameMode
     {
-        PlayerVsBot,
-        PlayerVsPlayer
+        LevelMode,
+        EndlessMode
     }
 
     // Selected mode for this match

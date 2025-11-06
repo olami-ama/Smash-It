@@ -57,19 +57,20 @@ public class MainMenuManager : MonoBehaviour
         Debug.Log("Game Quit!");
     }
 
-    // Player vs AI Mode
-    public void StartPlayerVsBot()
+    // Endless Mode (renamed from Player vs Bot)
+    public void StartEndlessMode()
     {
-        pendingScene = "AI Game Screen";
+        pendingScene = "EndlessModeScene"; 
         OpenPowerUpPanel();
     }
 
-    // Player vs Player Mode
-    public void StartPlayerVsPlayer()
+    // Level Mode (progressive AI levels)
+    public void StartLevelMode()
     {
-        pendingScene = "Multiplayer_MatchScene";
+        pendingScene = "Level1"; // First level
         OpenPowerUpPanel();
     }
+
 
     // Opens the Power-Up selection panel
     private void OpenPowerUpPanel()

@@ -88,6 +88,7 @@ public class UIManager : MonoBehaviour
     }
 
     //  LEVEL MODE: When player wins
+    //  LEVEL MODE: When player wins
     public void ShowWinPanel(PlayerType winner, PlayerType loser, MatchSettings.GameMode mode)
     {
         if (winPanel == null) return;
@@ -96,38 +97,55 @@ public class UIManager : MonoBehaviour
         string winnerLabel = "";
         int rewardEarned = 0;
 
+        // Handle only for LevelMode
         if (mode == MatchSettings.GameMode.LevelMode)
         {
+            // Get the current level data
+            LevelData currentLevel = null;
+            if (LevelManager.Instance != null && LevelManager.Instance.levelDataList.Count > 0)
+            {
+                int index = Mathf.Clamp(LevelManager.Instance.CurrentLevelIndex, 0, LevelManager.Instance.levelDataList.Count - 1);
+                currentLevel = LevelManager.Instance.levelDataList[index];
+            }
+
+            // If player wins
             if (winner == PlayerType.Player)
             {
-                winnerLabel = "Level Complete!";
-                rewardEarned = playerWinReward;
-                CoinManager.Instance?.AddCoins(playerWinReward);
+                if (currentLevel != null)
+                {
+                    winnerLabel = $"{currentLevel.levelName} Complete!";
+                    rewardEarned = currentLevel.coinsReward;
+                    CoinManager.Instance?.AddCoins(rewardEarned);
+                }
+                else
+                {
+                    winnerLabel = "Level Complete!";
+                    rewardEarned = 100; // fallback
+                    CoinManager.Instance?.AddCoins(rewardEarned);
+                }
             }
             else
             {
-                winnerLabel = "AI Wins!";
-                rewardEarned = -aiWinPenalty;
-                CoinManager.Instance?.SpendCoins(aiWinPenalty);
+                // If AI wins (just show lose panel separately)
+                ShowLosePanel();
+                return;
             }
         }
 
+        // Update text
         if (winText) winText.text = winnerLabel;
 
         if (coinsEarnedText != null)
         {
             string rewardText = rewardEarned > 0
                 ? $"+{rewardEarned} Coins Earned!"
-                : (rewardEarned < 0 ? $"-{Mathf.Abs(rewardEarned)} Coins Lost!" : "");
+                : "";
             coinsEarnedText.text = rewardText;
         }
 
         // Confetti on win
-        if (rewardEarned > 0)
-        {
-            var confetti = FindFirstObjectByType<ConfettiManager>();
-            confetti?.PlayConfetti();
-        }
+        var confetti = FindFirstObjectByType<ConfettiManager>();
+        confetti?.PlayConfetti();
 
         // Trivia popup (optional)
         StartCoroutine(ShowTriviaAfterDelay(7f));
@@ -135,20 +153,49 @@ public class UIManager : MonoBehaviour
         Debug.Log($"[UIManager] LevelMode Win Panel shown. Winner: {winner}, Reward: {rewardEarned}");
     }
 
+
     //  LEVEL MODE: When player loses
     public void ShowLosePanel()
     {
         if (losePanel == null) return;
 
-        losePanel.SetActive(true);
-        if (loseText != null)
-            loseText.text = "You Lost! Try Again.";
-
+        // Stop any celebration effects
         var confetti = FindFirstObjectByType<ConfettiManager>();
         confetti?.StopConfetti();
 
+        // Enable the panel and start fade-in
+        losePanel.SetActive(true);
+
+        // Ensure there’s a CanvasGroup for fade animation
+        CanvasGroup cg = losePanel.GetComponent<CanvasGroup>();
+        if (cg == null)
+            cg = losePanel.AddComponent<CanvasGroup>();
+
+        cg.alpha = 0f;
+        StartCoroutine(FadeInLosePanel(cg));
+
+        // Update lose text
+        if (loseText != null)
+            loseText.text = "You Lost! Try Again?";
+
         Debug.Log("[UIManager] Lose Panel shown (Level Mode).");
     }
+
+    private IEnumerator FadeInLosePanel(CanvasGroup cg)
+    {
+        float duration = 0.5f; // half a second fade
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            cg.alpha = Mathf.Clamp01(elapsed / duration);
+            yield return null;
+        }
+
+        cg.alpha = 1f;
+    }
+
 
     // ENDLESS MODE: When player loses
     public void ShowEndlessGameOver(PlayerType winner)
@@ -194,6 +241,11 @@ public class UIManager : MonoBehaviour
         {
             Debug.LogWarning("[UIManager] LevelManager not found. Make sure it's in the scene!");
         }
+    }
+    public void HideWinPanel()
+    {
+        if (winPanel != null)
+            winPanel.SetActive(false);
     }
 
 

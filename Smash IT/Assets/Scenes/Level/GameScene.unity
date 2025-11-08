@@ -1710,6 +1710,7 @@ GameObject:
   - component: {fileID: 785203573}
   - component: {fileID: 785203575}
   - component: {fileID: 785203574}
+  - component: {fileID: 785203576}
   m_Layer: 5
   m_Name: Losepanel
   m_TagString: Untagged
@@ -1778,6 +1779,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 785203572}
   m_CullTransparentMesh: 1
+--- !u!225 &785203576
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 785203572}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!4 &845968597 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5408327382481457490, guid: 3b278a35071144542b00e024d293dfff, type: 3}
@@ -8122,9 +8135,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 538ae9df1f26eca4d8de96052c159b6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelManager
-  currentLevel: 1
-  baseAISpeed: 5
-  baseBallSpeed: 8
+  levelDataList:
+  - {fileID: 11400000, guid: 582dab94c427f79469a9ccda183ca49e, type: 2}
+  - {fileID: 11400000, guid: 0866005fa84235a4ab143519c2322c32, type: 2}
+  - {fileID: 11400000, guid: a7de2310b0c1a7f49b5b49c1ba8ab1ba, type: 2}
+  - {fileID: 11400000, guid: 7efc7e539c1c17e4ea3e350cdfd32447, type: 2}
+  - {fileID: 11400000, guid: 2bc1e34a956fdfd45975955e116f1002, type: 2}
 --- !u!4 &1582166175
 Transform:
   m_ObjectHideFlags: 0

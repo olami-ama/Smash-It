@@ -90,6 +90,34 @@ public class GameManager : MonoBehaviour
 
         }
     }
+    public void ResetGame()
+    {
+        Debug.Log("[GameManager] Resetting game state for new level...");
+
+        playerScore = 0;
+        aiScore = 0;
+        isGameOver = false;
+
+        // Reset UI
+        if (UIManager.Instance != null)
+            UIManager.Instance.UpdateScoreUI(playerScore, aiScore);
+
+        // Destroy any old ball
+        if (currentBall != null)
+            Destroy(currentBall);
+
+        // Spawn new ball
+        SpawnBall();
+
+        /* reset paddles
+        if (playerPaddle != null)
+            playerPaddle.position = new Vector3(playerPaddle.position.x, -3.5f, 0);
+        if (aiPaddle != null)
+            aiPaddle.position = new Vector3(aiPaddle.position.x, 3.5f, 0);
+        */
+
+        Debug.Log("[GameManager] Game reset complete.");
+    }
 
     void SwitchServer() => currentServer = (currentServer == 1) ? 2 : 1;
 

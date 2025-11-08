@@ -1,16 +1,14 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using System.Collections;
-
+using System.Collections.Generic;
 
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance;
 
-    [Header("Level Info")]
-    public int currentLevel = 1;
-    public float baseAISpeed = 5f;
-    public float baseBallSpeed = 8f;
+    [Header("Level Assets")]
+    public List<LevelData> levelDataList;
+    private int currentLevelIndex = 0;
+    public int CurrentLevelIndex => currentLevelIndex;
 
     private void Awake()
     {
@@ -18,94 +16,62 @@ public class LevelManager : MonoBehaviour
             Instance = this;
         else
             Destroy(gameObject);
-
-        DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
     {
-        // Load saved level progress
-        if (PlayerPrefs.HasKey("CurrentLevel"))
-            currentLevel = PlayerPrefs.GetInt("CurrentLevel");
-
-        Debug.Log($"[LevelManager] Loaded Level {currentLevel}");
+        LoadLevel(currentLevelIndex);
     }
 
-    public void StartLevel()
+    public void LoadLevel(int index)
     {
-        // Adjust difficulty based on level
-        float aiSpeed = baseAISpeed + (currentLevel * 0.4f);
-        float ballSpeed = baseBallSpeed + (currentLevel * 0.2f);
-
-        // Find the AI paddle and adjust its speed dynamically
-        AIPaddleMovement ai = FindFirstObjectByType<AIPaddleMovement>();
-        if (ai != null)
+        if (index < 0 || index >= levelDataList.Count)
         {
-            ai.moveSpeed = aiSpeed;
-            Debug.Log($"[LevelManager] AI speed set to {aiSpeed}");
+            Debug.LogWarning("[LevelManager] Invalid level index!");
+            return;
         }
 
-        // Find the ball and adjust its base speed
-        BallMovement ball = FindFirstObjectByType<BallMovement>();
-        if (ball != null)
+        LevelData data = levelDataList[index];
+        Debug.Log($"[LevelManager] Loaded {data.levelName}");
+
+        var ai = FindFirstObjectByType<AIPaddleMovement>();
+        if (ai != null) ai.moveSpeed = data.aiSpeed;
+
+        var ball = FindFirstObjectByType<BallMovement>();
+        if (ball != null) ball.speedMultiplier = data.ballSpeed / 8f;
+
+        var gm = FindFirstObjectByType<GameManager>();
+        if (gm != null)
         {
-            ball.speedMultiplier = ballSpeed / 8f; // scale factor relative to your baseBallSpeed
-            Debug.Log($"[LevelManager] Ball speed multiplier set to {ball.speedMultiplier:F2}");
+            gm.ResetGame();
         }
 
-        Debug.Log($"[LevelManager] Level {currentLevel} started | AI Speed: {aiSpeed}, Ball Speed: {ballSpeed}");
     }
 
-
+    // Called when player wins
     public void CompleteLevel()
     {
-        currentLevel++;
-        PlayerPrefs.SetInt("CurrentLevel", currentLevel);
-        Debug.Log($"[LevelManager] Level {currentLevel - 1} complete!");
+        Debug.Log($"[LevelManager] Level {currentLevelIndex} completed!");
+        // Just show the win panel  don’t load next level yet
+        UIManager.Instance.ShowWinPanel(PlayerType.Player, PlayerType.AI, MatchSettings.GameMode.LevelMode);
     }
 
-
-    private IEnumerator LoadNextLevelAfterDelay(float delay)
+    // Called only when "Next Level" button is pressed
+    public void LoadNextLevel()
     {
-        yield return new WaitForSeconds(delay);
+        currentLevelIndex++;
 
-        currentLevel++;
-        PlayerPrefs.SetInt("CurrentLevel", currentLevel);
-
-        string nextScene = "Level" + currentLevel;
-        if (Application.CanStreamedLevelBeLoaded(nextScene))
+        if (currentLevelIndex < levelDataList.Count)
         {
-            SceneManager.LoadScene(nextScene);
+            Debug.Log($"[LevelManager] Loading next level: {currentLevelIndex}");
+            LoadLevel(currentLevelIndex);
+            UIManager.Instance.HideWinPanel();
         }
         else
         {
-            Debug.Log("[LevelManager] No more levels found — showing Main Menu.");
-            SceneManager.LoadScene("MainMenu");
-        }
-    }
-
-    public void ResetProgress()
-    {
-        PlayerPrefs.DeleteKey("CurrentLevel");
-        currentLevel = 1;
-        Debug.Log("[LevelManager] Progress reset to Level 1");
-    }
-
-   public void LoadNextLevel()
-    {
-        int nextLevel = currentLevel + 1;
-        Debug.Log($"[LevelManager] Loading next level manually (GoToNextLevel). Next Level: {nextLevel}");
-
-        // Try to load the next level scene
-        string nextScene = "Level" + nextLevel;
-        if (Application.CanStreamedLevelBeLoaded(nextScene))
-        {
-            SceneManager.LoadScene(nextScene);
-        }
-        else
-        {
-            Debug.Log("[LevelManager] No next level found — returning to Main Menu.");
-            SceneManager.LoadScene("MainMenu");
+            Debug.Log("[LevelManager] All levels complete! Returning to main menu.");
+            UIManager.Instance.GoToMainMenu();
         }
     }
 }
+

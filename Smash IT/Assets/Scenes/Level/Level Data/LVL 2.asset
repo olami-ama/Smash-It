@@ -10,10 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 866d710ae7eca8c4483bc6bbfa51f132, type: 3}
-  m_Name: LVL1
+  m_Name: LVL 2
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
-  levelName: Level 1
-  levelNumber: 1
-  aiSpeed: 3
+  levelName: 2
+  levelNumber: 2
+  aiSpeed: 4
   ballSpeed: 5
-  coinsReward: 25
+  goalDescription: '4  points '
+  coinsReward: 4

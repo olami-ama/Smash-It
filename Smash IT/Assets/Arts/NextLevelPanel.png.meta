@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: a54e75c80e22b28459cd3584c476f75a
+guid: 6431037210ff9b84285ce72bafeda6e4
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2471241703887403631
-    second: slow power up_0
+      213: -4724906063738208883
+    second: NextLevelPanel_0
+  - first:
+      213: 2910926449845877592
+    second: NextLevelPanel_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +49,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 0
   alignment: 0
@@ -126,13 +129,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: slow power up_0
+      name: NextLevelPanel_0
       rect:
         serializedVersion: 2
-        x: 67
-        y: 360
-        width: 1350
-        height: 321
+        x: 219
+        y: 96
+        width: 591
+        height: 831
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +144,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f6af65a8c3d9b4220800000000000000
-      internalID: 2471241703887403631
+      spriteID: d8d7bc9f7f2cd6eb0800000000000000
+      internalID: -4724906063738208883
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextLevelPanel_1
+      rect:
+        serializedVersion: 2
+        x: 943
+        y: 31
+        width: 50
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85b3a52fe20b56820800000000000000
+      internalID: 2910926449845877592
       vertices: []
       indices: 
       edges: []
@@ -161,7 +186,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      slow power up_0: 2471241703887403631
+      NextLevelPanel_0: -4724906063738208883
+      NextLevelPanel_1: 2910926449845877592
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

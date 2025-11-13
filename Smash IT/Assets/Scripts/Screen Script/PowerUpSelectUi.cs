@@ -1,25 +1,31 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 public class PowerUpSelectUi : MonoBehaviour
 {
+    public static PowerUpSelectUi Instance; // ✅ Added singleton
+
+    private void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
+    }
+
     [System.Serializable]
     public class PowerUpSlot
     {
-        public string powerUpName;    // Must match ShopItem.itemName exactly
-        public Button selectButton;   // The button the player clicks
-        public TMP_Text countText;    // Shows how many owned (e.g. "x3")
-        [HideInInspector] public bool selected; // Keeps track of which are clicked
+        public string powerUpName;
+        public Button selectButton;
+        public TMP_Text countText;
+        [HideInInspector] public bool selected;
     }
 
     [Header("Power-Up Slots (assign manually in Inspector)")]
     public List<PowerUpSlot> powerUpSlots = new List<PowerUpSlot>();
-
-    [Header("Game Scene to Load")]
-    public string gameSceneName; // "AI Game Screen" or "Multiplayer_MatchScene"
 
     [Header("Selection Limit")]
     public int maxSelections = 3;
@@ -34,7 +40,6 @@ public class PowerUpSelectUi : MonoBehaviour
         RefreshUI();
     }
 
-    // Refreshes all UI buttons and count labels
     public void RefreshUI()
     {
         foreach (var slot in powerUpSlots)
@@ -43,17 +48,16 @@ public class PowerUpSelectUi : MonoBehaviour
                 continue;
 
             int owned = ShopManager.Instance != null ? ShopManager.Instance.GetConsumableCount(slot.powerUpName) : 0;
-            slot.countText.text = "x" + owned;
-            slot.selectButton.interactable = owned > 0;
 
-            // Reset color & click
+            slot.countText.text = owned.ToString();
+            slot.selectButton.interactable = owned > 0;
             slot.selectButton.image.color = slot.selected ? Color.green : Color.white;
+
             slot.selectButton.onClick.RemoveAllListeners();
             slot.selectButton.onClick.AddListener(() => OnPowerUpClicked(slot));
         }
     }
 
-    // When player clicks on a power-up
     private void OnPowerUpClicked(PowerUpSlot slot)
     {
         if (slot.selected)
@@ -81,7 +85,6 @@ public class PowerUpSelectUi : MonoBehaviour
         }
     }
 
-    // Counts how many power-ups are selected
     private int GetSelectedCount()
     {
         int count = 0;
@@ -90,32 +93,32 @@ public class PowerUpSelectUi : MonoBehaviour
         return count;
     }
 
-    // Called by Confirm button before loading the game
-    public void ConfirmAndStartGame()
+    public void ConfirmAndStartGame(System.Action onConfirmed = null)
     {
-        // Clear any old selections
         MatchSettingsData.selectedPowerUps.Clear();
 
-        // Save the new selections
         foreach (var slot in powerUpSlots)
         {
             if (slot.selected)
             {
                 MatchSettingsData.selectedPowerUps.Add(slot.powerUpName);
-                ShopManager.Instance.ConsumeItem(slot.powerUpName, 1); // use up one
+                ShopManager.Instance.ConsumeItem(slot.powerUpName, 1);
             }
         }
 
         Debug.Log($"[PowerUpSelectUI] Saved {MatchSettingsData.selectedPowerUps.Count} power-ups for next match.");
 
-        // Load the chosen scene
-        if (!string.IsNullOrEmpty(gameSceneName))
+        onConfirmed?.Invoke();
+
+        if (GameManager.Instance != null)
         {
-            SceneManager.LoadScene(gameSceneName);
+            Debug.Log("[PowerUpSelectUI] Starting match inside the same gameplay scene...");
+            GameManager.Instance.ResetGame();
+            gameObject.SetActive(false);
         }
         else
         {
-            Debug.LogWarning("[PowerUpSelectUI] No gameSceneName assigned!");
+            Debug.LogWarning("[PowerUpSelectUI] GameManager not found in scene!");
         }
     }
 }

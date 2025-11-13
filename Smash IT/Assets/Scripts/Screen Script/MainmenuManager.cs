@@ -4,101 +4,72 @@ using UnityEngine.SceneManagement;
 public class MainMenuManager : MonoBehaviour
 {
     [Header("Panels")]
-    public GameObject mainMenuPanel;   // The main home screen
-    public GameObject gameModePanel;   // The panel for selecting game modes
-    public GameObject settingsPanel;   // The panel for settings options
-    public GameObject powerUpPanel;    // The panel for pre-match power-up selection
-    public GameObject shopPanel;       // The shop panel where players buy items
-
-    private string pendingScene;       // Stores which game scene to load after selection
+    public GameObject mainMenuPanel;
+    public GameObject gameModePanel;
+    public GameObject settingsPanel;
+    public GameObject shopPanel;
 
     private void Start()
     {
-        // Ensure only main menu is visible at launch
         mainMenuPanel.SetActive(true);
         gameModePanel.SetActive(false);
         settingsPanel.SetActive(false);
-        powerUpPanel.SetActive(false);
         shopPanel.SetActive(false);
     }
 
-    // Opens the Game Mode selection panel
     public void OpenGameModeMenu()
     {
         mainMenuPanel.SetActive(false);
         gameModePanel.SetActive(true);
     }
 
-    // Opens the Settings panel
     public void OpenSettings()
     {
         mainMenuPanel.SetActive(false);
         settingsPanel.SetActive(true);
     }
 
-    // Opens the Shop panel
     public void OpenShop()
     {
         mainMenuPanel.SetActive(false);
         shopPanel.SetActive(true);
     }
 
-    // Closes the Shop and returns to Main Menu
     public void CloseShop()
     {
         shopPanel.SetActive(false);
         mainMenuPanel.SetActive(true);
     }
 
-    // Quits the game (works only in builds)
     public void QuitGame()
     {
         Application.Quit();
         Debug.Log("Game Quit!");
     }
 
-    // Endless Mode (renamed from Player vs Bot)
+    // Start Endless Mode directly
     public void StartEndlessMode()
     {
-        pendingScene = "EndlessModeScene"; 
-        OpenPowerUpPanel();
+        SceneManager.LoadScene("GameScene"); // Load your reusable game scene
+        // LevelManager in GameScene will detect that Endless Mode should start
+        // You can optionally set a flag in GameSession like:
+        // GameSession.GameMode = MatchSettings.GameMode.EndlessMode;
     }
 
-    // Level Mode (progressive AI levels)
+    // Start Level Mode → open Level Map inside GameScene
     public void StartLevelMode()
     {
-        pendingScene = "Level1"; // First level
-        OpenPowerUpPanel();
+        SceneManager.LoadScene("GameScene"); // Load the reusable game scene
+        // GameScene should show the Level Map panel immediately
+        // You can optionally set a flag like:
+        // GameSession.GameMode = MatchSettings.GameMode.LevelMode;
     }
 
-
-    // Opens the Power-Up selection panel
-    private void OpenPowerUpPanel()
-    {
-        gameModePanel.SetActive(false);
-        powerUpPanel.SetActive(true);
-
-        // Look for PowerUpSelectUi script dynamically
-        var powerupUI = powerUpPanel.GetComponent<PowerUpSelectUi>();
-        if (powerupUI != null)
-        {
-            powerupUI.gameSceneName = pendingScene; // Pass the target scene
-            powerupUI.RefreshUI();
-        }
-        else
-        {
-            Debug.LogWarning("[MainMenuManager] PowerUpSelectUi not found on PowerUpPanel!");
-        }
-    }
-
-    // Returns from any panel back to the Main Menu
     public void BackToMainMenu()
     {
         gameModePanel.SetActive(false);
         settingsPanel.SetActive(false);
-        powerUpPanel.SetActive(false);
         shopPanel.SetActive(false);
-
         mainMenuPanel.SetActive(true);
     }
 }

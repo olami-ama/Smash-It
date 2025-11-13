@@ -7,71 +7,69 @@ public class LevelManager : MonoBehaviour
 
     [Header("Level Assets")]
     public List<LevelData> levelDataList;
-    private int currentLevelIndex = 0;
-    public int CurrentLevelIndex => currentLevelIndex;
+
+    public int CurrentLevelIndex => GameSession.CurrentLevelIndex;
 
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-            Destroy(gameObject);
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
     }
 
     private void Start()
     {
-        LoadLevel(currentLevelIndex);
+        LoadLevel(GameSession.CurrentLevelIndex);
     }
 
     public void LoadLevel(int index)
     {
+        Debug.Log($"[LevelManager] LoadLevel called with index: {index}");
+
         if (index < 0 || index >= levelDataList.Count)
         {
             Debug.LogWarning("[LevelManager] Invalid level index!");
             return;
         }
 
-        LevelData data = levelDataList[index];
-        Debug.Log($"[LevelManager] Loaded {data.levelName}");
+        // Set current level first
+        GameSession.SetCurrentLevel(index);
 
+        LevelData data = levelDataList[index];
+        Debug.Log($"[LevelManager] Loading {data.levelName}");
+
+        // Configure game systems
         var ai = FindFirstObjectByType<AIPaddleMovement>();
         if (ai != null) ai.moveSpeed = data.aiSpeed;
 
         var ball = FindFirstObjectByType<BallMovement>();
         if (ball != null) ball.speedMultiplier = data.ballSpeed / 8f;
 
-        var gm = FindFirstObjectByType<GameManager>();
-        if (gm != null)
+        if (GameManager.Instance != null)
         {
-            gm.ResetGame();
+            GameManager.Instance.winningScore = ExtractWinningScoreFromGoal(data.goalDescription);
+            GameManager.Instance.ResetGame();
         }
 
+        // Advance AFTER successful load, not before
+        GameSession.AdvanceLevel();
     }
 
-    // Called when player wins
-    public void CompleteLevel()
+    private int ExtractWinningScoreFromGoal(string goalDescription)
     {
-        Debug.Log($"[LevelManager] Level {currentLevelIndex} completed!");
-        // Just show the win panel  don’t load next level yet
-        UIManager.Instance.ShowWinPanel(PlayerType.Player, PlayerType.AI, MatchSettings.GameMode.LevelMode);
-    }
-
-    // Called only when "Next Level" button is pressed
-    public void LoadNextLevel()
-    {
-        currentLevelIndex++;
-
-        if (currentLevelIndex < levelDataList.Count)
+        if (string.IsNullOrEmpty(goalDescription))
         {
-            Debug.Log($"[LevelManager] Loading next level: {currentLevelIndex}");
-            LoadLevel(currentLevelIndex);
-            UIManager.Instance.HideWinPanel();
+            Debug.LogWarning("[LevelManager] goalDescription is empty. Using fallback 5.");
+            return 5;
         }
-        else
+
+        foreach (var part in goalDescription.Split(' '))
         {
-            Debug.Log("[LevelManager] All levels complete! Returning to main menu.");
-            UIManager.Instance.GoToMainMenu();
+            if (int.TryParse(part, out int score))
+                return score;
         }
+
+        Debug.LogWarning($"[LevelManager] Could not parse goal: \"{goalDescription}\". Using fallback 5.");
+        return 5;
     }
 }
 

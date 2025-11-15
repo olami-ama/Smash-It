@@ -6,11 +6,17 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/SplashScreen.unity
+    guid: e7133a1e5dd630b49acb9e36b18fab44
+  - enabled: 1
     path: Assets/Scenes/MainMenu.unity
     guid: ff003746d579937459b977bd6a868569
   - enabled: 1
     path: Assets/Scenes/Level/GameScene.unity
     guid: 0cb0b8ef710c48a48a46e7703f567dc3
+  - enabled: 1
+    path: Assets/Scenes/EndlessModeScene.unity
+    guid: 9a031c39c9781f14aa5f987d3a9272ee
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 3590b91b4603b465dbb4216d601bff33, type: 3}
   m_UseUCBPForAssetBundles: 0

@@ -9,7 +9,7 @@ public class UIManager : MonoBehaviour
 {
 
     public static UIManager Instance;
-    
+
 
     [Header("Panels")]
     public GameObject winPanel;
@@ -34,12 +34,12 @@ public class UIManager : MonoBehaviour
     public TMP_Text aiScoreText;
     public TMP_Text endlessScoreText;
 
-[Header("Economy")]
+    [Header("Economy")]
     public TMP_Text mainMenuCoinText;
     public int playerWinReward = 100;
     public int aiWinPenalty = 50;
 
-   
+
 
     private void Awake()
     {
@@ -246,60 +246,64 @@ public class UIManager : MonoBehaviour
     // -------------------
     public void ShowEndlessGameOver(PlayerType winner)
     {
+        if (EndlessGameManager.Instance == null)
+        {
+            Debug.LogWarning("[UIManager] EndlessGameManager not found!");
+            return;
+        }
 
-        if (endlessGameOverPanel != null)
-            endlessGameOverPanel.SetActive(true);
+        // Get the player's score from EndlessGameManager
+        int playerScore = EndlessGameManager.Instance.GetPlayerScore();
 
-
+        // Get previous high score
         int previousHighScore = PlayerPrefs.GetInt("EndlessHighScore", 0);
-        int currentScore = EndlessGameManager.Instance.GetPlayerScore();
 
-        Debug.Log("[Endless] Player Score: " + currentScore);
+        Debug.Log("[Endless] Player Score: " + playerScore);
         Debug.Log("[Endless] High Score Before: " + previousHighScore);
 
-        // Display CURRENT SCORE
-        if (endlessCurrentScoreText != null)
-            endlessCurrentScoreText.text = "Score: " + currentScore;
-
-        // Display HIGH SCORE
+        // Set high score text
         if (endlessHighScoreText != null)
             endlessHighScoreText.text = "High Score: " + previousHighScore;
 
+        // Set current score text
+        if (endlessCurrentScoreText != null)
+            endlessCurrentScoreText.text = "Your Score: " + playerScore;
+
+        // Coins earned (only IF beat high score)
         int coinsEarned = 0;
-
-        // FIRST TIME 100 coins
-        if (previousHighScore == 0)
+        if (playerScore > previousHighScore)
         {
-            coinsEarned = 100;
-            CoinManager.Instance?.AddCoins(coinsEarned);
-            PlayerPrefs.SetInt("EndlessHighScore", currentScore);
-            PlayerPrefs.Save();
+            coinsEarned = playerScore - previousHighScore;
+            if (endlessCoinsEarnedText != null)
+                endlessCoinsEarnedText.text = "+" + coinsEarned + " Coins!";
         }
-        else if (currentScore > previousHighScore)
+        else
         {
-            coinsEarned = currentScore - previousHighScore;
-            CoinManager.Instance?.AddCoins(coinsEarned);
-            PlayerPrefs.SetInt("EndlessHighScore", currentScore);
-            PlayerPrefs.Save();
-
-            var confetti = FindFirstObjectByType<ConfettiManager>();
-            confetti?.PlayConfetti();
-
-            Debug.Log($"[Endless] New High Score! Coins awarded: {coinsEarned}");
-
+            if (endlessCoinsEarnedText != null)
+                endlessCoinsEarnedText.text = "";
         }
 
-        // Display COINS EARNED
-        if (endlessCoinsEarnedText != null)
-            endlessCoinsEarnedText.text = coinsEarned > 0 ? $"+{coinsEarned} Coins!" : "";
+        // Show only endless game panel
+        ShowOnlyEndlessGamePanel();
 
+        // Start trivia after delay
         StartCoroutine(ShowTriviaAfterDelay(2f));
-
     }
 
+    // -------------------
+    // CLASS-LEVEL METHODS
+    // -------------------
+  public  void ShowOnlyEndlessGamePanel()
+    {
+        if (winPanel != null) winPanel.SetActive(false);
+        if (losePanel != null) losePanel.SetActive(false);
+        if (nextLevelPanel != null) nextLevelPanel.SetActive(false);
+        if (endlessGameOverPanel != null) endlessGameOverPanel.SetActive(true);
 
+        Debug.Log("[UIManager] Endless Game Over Panel shown.");
+    }
 
-    private IEnumerator ShowTriviaAfterDelay(float delay)
+    IEnumerator ShowTriviaAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
 
@@ -313,8 +317,13 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    
+    public void ReplayGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
 
-    public void ReplayGame() => SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    public void GoToMainMenu() => SceneManager.LoadScene("MainMenu");
+    public void GoToMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
 }

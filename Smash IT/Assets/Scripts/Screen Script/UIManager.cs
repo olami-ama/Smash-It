@@ -3,10 +3,13 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.UI;
+using static GameManager; // gives access to PlayerType
 
 public class UIManager : MonoBehaviour
 {
+
     public static UIManager Instance;
+    
 
     [Header("Panels")]
     public GameObject winPanel;
@@ -19,13 +22,19 @@ public class UIManager : MonoBehaviour
     public TMP_Text winText;
     public TMP_Text loseText;
     public TMP_Text coinsEarnedText;
-    public TMP_Text endlessGameOverText;
+
+    [Header("Endless Mode UI")]
+    public TMP_Text endlessHighScoreText; // Show previous high score
+    public TMP_Text endlessCoinsEarnedText; // Show coins earned for new high 
+    public TMP_Text endlessCurrentScoreText;
+
 
     [Header("Score UI")]
     public TMP_Text playerScoreText;
     public TMP_Text aiScoreText;
+    public TMP_Text endlessScoreText;
 
-    [Header("Economy")]
+[Header("Economy")]
     public TMP_Text mainMenuCoinText;
     public int playerWinReward = 100;
     public int aiWinPenalty = 50;
@@ -48,6 +57,7 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         StartCoroutine(DelayedStart());
+        Debug.Log("CoinsEarnedText Assigned? " + (endlessCoinsEarnedText != null));
     }
 
     private IEnumerator DelayedStart()
@@ -88,6 +98,11 @@ public class UIManager : MonoBehaviour
 
         if (aiScoreText != null)
             aiScoreText.text = "AI: " + aiScore;
+
+        if (endlessScoreText != null)
+            endlessScoreText.text = "SCORE: " + playerScore;
+
+
     }
 
     // -------------------
@@ -231,20 +246,58 @@ public class UIManager : MonoBehaviour
     // -------------------
     public void ShowEndlessGameOver(PlayerType winner)
     {
-        if (endlessGameOverPanel == null) return;
 
-        endlessGameOverPanel.SetActive(true);
+        if (endlessGameOverPanel != null)
+            endlessGameOverPanel.SetActive(true);
 
-        if (endlessGameOverText != null)
+
+        int previousHighScore = PlayerPrefs.GetInt("EndlessHighScore", 0);
+        int currentScore = EndlessGameManager.Instance.GetPlayerScore();
+
+        Debug.Log("[Endless] Player Score: " + currentScore);
+        Debug.Log("[Endless] High Score Before: " + previousHighScore);
+
+        // Display CURRENT SCORE
+        if (endlessCurrentScoreText != null)
+            endlessCurrentScoreText.text = "Score: " + currentScore;
+
+        // Display HIGH SCORE
+        if (endlessHighScoreText != null)
+            endlessHighScoreText.text = "High Score: " + previousHighScore;
+
+        int coinsEarned = 0;
+
+        // FIRST TIME 100 coins
+        if (previousHighScore == 0)
         {
-            endlessGameOverText.text = winner == PlayerType.Player ? "New High Score!" : "Game Over! AI Wins.";
+            coinsEarned = 100;
+            CoinManager.Instance?.AddCoins(coinsEarned);
+            PlayerPrefs.SetInt("EndlessHighScore", currentScore);
+            PlayerPrefs.Save();
+        }
+        else if (currentScore > previousHighScore)
+        {
+            coinsEarned = currentScore - previousHighScore;
+            CoinManager.Instance?.AddCoins(coinsEarned);
+            PlayerPrefs.SetInt("EndlessHighScore", currentScore);
+            PlayerPrefs.Save();
+
+            var confetti = FindFirstObjectByType<ConfettiManager>();
+            confetti?.PlayConfetti();
+
+            Debug.Log($"[Endless] New High Score! Coins awarded: {coinsEarned}");
+
         }
 
-        var confetti = FindFirstObjectByType<ConfettiManager>();
-        confetti?.StopConfetti();
+        // Display COINS EARNED
+        if (endlessCoinsEarnedText != null)
+            endlessCoinsEarnedText.text = coinsEarned > 0 ? $"+{coinsEarned} Coins!" : "";
 
-        Debug.Log("[UIManager] Endless Mode Game Over panel shown.");
+        StartCoroutine(ShowTriviaAfterDelay(2f));
+
     }
+
+
 
     private IEnumerator ShowTriviaAfterDelay(float delay)
     {

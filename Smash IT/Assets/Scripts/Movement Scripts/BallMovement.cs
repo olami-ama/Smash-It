@@ -150,27 +150,32 @@ public class BallMovement : MonoBehaviour
 
         Vector3 pos = transform.position;
         Vector2 vel = rb.linearVelocity;
-        bool changed = false;
+       
 
-        if (pos.x < minX) { pos.x = minX; vel.x = Mathf.Abs(vel.x); changed = true; }
-        else if (pos.x > maxX) { pos.x = maxX; vel.x = -Mathf.Abs(vel.x); changed = true; }
-
-        if (pos.y < minY) { pos.y = minY; vel.y = Mathf.Abs(vel.y); changed = true; }
-        else if (pos.y > maxY) { pos.y = maxY; vel.y = -Mathf.Abs(vel.y); changed = true; }
-
-        if (changed)
+        if (isLaunched && EndlessGameManager.Instance != null)
         {
-            transform.position = pos;
-            rb.linearVelocity = vel;
+            float aiGoalY = 7.1f;      // top of AI paddle, player scores
+            float playerMissY = -11.1f; // below player paddle,  missed ball
+
+            // Player scores
+            if (transform.position.y >= aiGoalY)
+            {
+                EndlessGameManager.Instance.PlayerScores();
+                ResetToPaddle(); // respawn logic handled by EndlessGameManager.SpawnBall
+                EndlessGameManager.Instance.SpawnBall();
+                return;
+            }
+
+            // Player misses
+            if (transform.position.y <= playerMissY)
+            {
+                EndlessGameManager.Instance.RegisterMiss();
+                return;
+            }
         }
 
-        float speed = rb.linearVelocity.magnitude;
-        float clampLimit = launchSpeed * speedMultiplier * 1.5f;
-        if (speed > clampLimit)
-        {
-            rb.linearVelocity = rb.linearVelocity.normalized * clampLimit;
-        }
     }
+
 
     public void ResetToPaddle()
     {

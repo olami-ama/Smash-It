@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: 53ce95d39b8499749ad4972a44e58334
+guid: 00f289ee6bee7d44ab16346d0315e842
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5659682115573864846
-    second: 20250819_2017_Nigerian-Inspired Sports Hall_remix_01k31w2yc5ejc805s6my4adj0s_0
+      213: 4071074514018624908
+    second: BrownTable 1_0
+  - first:
+      213: -3850893723873015592
+    second: BrownTable 1_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -48,7 +51,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -97,7 +100,7 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: WebGL
+    buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -110,7 +113,7 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: Android
+    buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -126,13 +129,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 20250819_2017_Nigerian-Inspired Sports Hall_remix_01k31w2yc5ejc805s6my4adj0s_0
+      name: BrownTable 1_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1024
-        height: 1536
+        x: 240
+        y: 191
+        width: 545
+        height: 669
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +144,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 276a6972a15c471b0800000000000000
-      internalID: -5659682115573864846
+      spriteID: c85e93673bc5f7830800000000000000
+      internalID: 4071074514018624908
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BrownTable 1_1
+      rect:
+        serializedVersion: 2
+        x: 944
+        y: 32
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d884c0af80ee8ac0800000000000000
+      internalID: -3850893723873015592
       vertices: []
       indices: 
       edges: []
@@ -151,7 +176,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -161,7 +186,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      20250819_2017_Nigerian-Inspired Sports Hall_remix_01k31w2yc5ejc805s6my4adj0s_0: -5659682115573864846
+      BrownTable 1_0: 4071074514018624908
+      BrownTable 1_1: -3850893723873015592
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

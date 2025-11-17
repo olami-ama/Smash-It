@@ -16,7 +16,7 @@ public class EndlessGameManager : MonoBehaviour
     public int difficultyStep = 50;
     public int maxMisses = 5;
 
-    private int playerScore;
+    public int playerScore;
     [HideInInspector] public int missedBalls = 0;
     private int lastDifficultyIncrease = 0;
 
@@ -119,7 +119,7 @@ public class EndlessGameManager : MonoBehaviour
         StartCoroutine(ShowEndlessPanelWithDelay());
     }
 
-    private IEnumerator ShowEndlessPanelWithDelay()
+    public IEnumerator ShowEndlessPanelWithDelay()
     {
         yield return new WaitForSeconds(0.3f);
 
@@ -127,7 +127,7 @@ public class EndlessGameManager : MonoBehaviour
         uiManager.ShowEndlessGameOver(PlayerType.Player);
     }
 
-    private void UpdateUI()
+    public void UpdateUI()
     {
         UIManager.Instance.UpdateScoreUI(playerScore, 0);
     }

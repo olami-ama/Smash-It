@@ -157,23 +157,22 @@ public class UIManager : MonoBehaviour
     // -------------------
     // Show NextLevelPanel
     // -------------------
-
     public void ShowNextLevelPanelForCurrentLevel()
     {
-        Debug.Log($"[UIManager] ShowNextLevelPanelForCurrentLevel called. GameSession.NextLevelIndex: {GameSession.GetNextLevelIndex()}");
-
         if (LevelManager.Instance == null) return;
 
-        int nextIndex = GameSession.GetNextLevelIndex();
+        // Only show if CurrentLevelIndex is not the first level
+        if (GameSession.CurrentLevelIndex < 0) return;
+
+        int nextIndex = GameSession.CurrentLevelIndex + 1;
+
         if (nextIndex >= LevelManager.Instance.levelDataList.Count)
         {
-            Debug.Log("[UIManager] No more levels. Going to main menu.");
             GoToMainMenu();
             return;
         }
 
         LevelData nextLevel = LevelManager.Instance.levelDataList[nextIndex];
-        Debug.Log($"[UIManager] Preparing next level: {nextLevel.levelName} (Index: {nextIndex})");
 
         if (nextLevelPanel != null)
         {
@@ -186,14 +185,16 @@ public class UIManager : MonoBehaviour
             if (panelComp != null)
             {
                 panelComp.Setup(nextLevel);
-                winPanel.SetActive(false);
-            }
-            else
-            {
-                Debug.LogWarning("[UIManager] NextLevelPanel component missing!");
+
+                // Hide win panel here
+                if (winPanel != null)
+                    winPanel.SetActive(false);
             }
         }
     }
+
+
+
 
 
     public void HideWinPanel()

@@ -8,36 +8,31 @@ public class LevelManager : MonoBehaviour
     [Header("Level Assets")]
     public List<LevelData> levelDataList;
 
-    public int CurrentLevelIndex => GameSession.CurrentLevelIndex;
-
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
-
     private void Start()
     {
+        // Only load the first level directly
         LoadLevel(GameSession.CurrentLevelIndex);
     }
 
+
     public void LoadLevel(int index)
     {
-        Debug.Log($"[LevelManager] LoadLevel called with index: {index}");
-
         if (index < 0 || index >= levelDataList.Count)
         {
             Debug.LogWarning("[LevelManager] Invalid level index!");
             return;
         }
 
-        // Set current level first
-        GameSession.SetCurrentLevel(index);
-
         LevelData data = levelDataList[index];
-        Debug.Log($"[LevelManager] Loading {data.levelName}");
 
-        // Configure game systems
+        Debug.Log($"[LevelManager] Loading Level: {data.levelName}");
+
+        // Configure AI and ball
         var ai = FindFirstObjectByType<AIPaddleMovement>();
         if (ai != null) ai.moveSpeed = data.aiSpeed;
 
@@ -49,27 +44,29 @@ public class LevelManager : MonoBehaviour
             GameManager.Instance.winningScore = ExtractWinningScoreFromGoal(data.goalDescription);
             GameManager.Instance.ResetGame();
         }
-
-        // Advance AFTER successful load, not before
-        GameSession.AdvanceLevel();
     }
 
     private int ExtractWinningScoreFromGoal(string goalDescription)
     {
-        if (string.IsNullOrEmpty(goalDescription))
-        {
-            Debug.LogWarning("[LevelManager] goalDescription is empty. Using fallback 5.");
-            return 5;
-        }
-
         foreach (var part in goalDescription.Split(' '))
+            if (int.TryParse(part, out int score)) return score;
+        return 5; // fallback
+    }
+
+    // Call after player wins
+    public void OnLevelCompleted()
+    {
+        Debug.Log($"[LevelManager] Level {GameSession.CurrentLevelIndex} completed.");
+
+        GameSession.AdvanceLevel();
+
+        if (GameSession.CurrentLevelIndex >= levelDataList.Count)
         {
-            if (int.TryParse(part, out int score))
-                return score;
+            Debug.Log("[LevelManager] All levels completed. Returning to main menu.");
+            UIManager.Instance?.GoToMainMenu();
+            return;
         }
 
-        Debug.LogWarning($"[LevelManager] Could not parse goal: \"{goalDescription}\". Using fallback 5.");
-        return 5;
+        UIManager.Instance?.ShowNextLevelPanelForCurrentLevel();
     }
 }
-

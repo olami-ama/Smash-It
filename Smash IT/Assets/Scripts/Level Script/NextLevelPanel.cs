@@ -9,8 +9,8 @@ public class NextLevelPanel : MonoBehaviour
     public TMP_Text goalText;
     public Button playButton;
 
-    private bool isStarting = false;
     private LevelData nextLevelData;
+    private bool isStarting = false;
 
     private void Awake()
     {
@@ -20,49 +20,45 @@ public class NextLevelPanel : MonoBehaviour
 
     public void Setup(LevelData levelData)
     {
-        if (levelData == null)
-        {
-            Debug.LogWarning("[NextLevelPanel] Setup called with null LevelData!");
-            return;
-        }
+        if (levelData == null) return;
 
         nextLevelData = levelData;
+        levelNameText.text = levelData.levelName;
+        goalText.text = levelData.goalDescription;
 
-        if (levelNameText != null)
-            levelNameText.text = levelData.levelName;
-
-        if (goalText != null)
-            goalText.text = levelData.goalDescription;
-
-        Debug.Log($"[NextLevelPanel] Setup complete for Level: {levelData.levelName}");
+        gameObject.SetActive(true);
+        isStarting = false; // reset flag
     }
 
     public void OnPlayClicked()
     {
-        if (isStarting) return; // Prevent double-click issues
+        if (isStarting) return;
         isStarting = true;
 
         PowerUpSelectUi.Instance.ConfirmAndStartGame(() =>
         {
-            GameSession.AdvanceLevel(); //  Advance to next level only now
             StartSelectedLevel();
         });
     }
 
-    private void StartSelectedLevel()
+    public void StartSelectedLevel()
     {
-        if (LevelManager.Instance == null)
+        if (LevelManager.Instance == null || nextLevelData == null) return;
+
+        // Load the exact level this panel is showing
+        int nextIndex = LevelManager.Instance.levelDataList.IndexOf(nextLevelData);
+        if (nextIndex < 0)
         {
-            Debug.LogWarning("[NextLevelPanel] LevelManager not found!");
+            Debug.LogWarning("[NextLevelPanel] LevelData not found in LevelManager!");
             return;
         }
 
-        int nextLevelIndex = GameSession.CurrentLevelIndex;
-        Debug.Log($"[NextLevelPanel] Starting next level index: {nextLevelIndex}");
+        // Sync CurrentLevelIndex with what we are loading
+        GameSession.SetCurrentLevel(nextIndex);
 
-        LevelManager.Instance.LoadLevel(nextLevelIndex);
+        Debug.Log($"[NextLevelPanel] Starting level index: {nextIndex}");
+        LevelManager.Instance.LoadLevel(nextIndex);
 
-        //  Hide this panel after loading
         gameObject.SetActive(false);
         isStarting = false;
     }

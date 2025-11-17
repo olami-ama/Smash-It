@@ -16,5 +16,5 @@ MonoBehaviour:
   levelNumber: 3
   aiSpeed: 5
   ballSpeed: 8
-  goalDescription: '5 points '
-  coinsReward: 5
+  goalDescription: 3 Balls
+  coinsReward: 3

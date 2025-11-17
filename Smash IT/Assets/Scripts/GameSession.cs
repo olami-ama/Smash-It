@@ -15,6 +15,4 @@ public static class GameSession
         CurrentLevelIndex++;
         Debug.Log($"[GameSession] Advanced to next level: {CurrentLevelIndex}");
     }
-
-    public static int GetNextLevelIndex() => CurrentLevelIndex + 1;
 }

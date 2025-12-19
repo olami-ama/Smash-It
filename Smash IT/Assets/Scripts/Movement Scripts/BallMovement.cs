@@ -161,10 +161,10 @@ public class BallMovement : MonoBehaviour
             if (transform.position.y >= aiGoalY)
             {
                 EndlessGameManager.Instance.PlayerScores();
-                ResetToPaddle(); // respawn logic handled by EndlessGameManager.SpawnBall
-                EndlessGameManager.Instance.SpawnBall();
+                Destroy(gameObject); // let manager decide what happens next
                 return;
             }
+
 
             // Player misses
             if (transform.position.y <= playerMissY)

@@ -223,9 +223,12 @@ MonoBehaviour:
   winText: {fileID: 0}
   loseText: {fileID: 0}
   coinsEarnedText: {fileID: 0}
-  endlessGameOverText: {fileID: 0}
+  endlessHighScoreText: {fileID: 0}
+  endlessCoinsEarnedText: {fileID: 0}
+  endlessCurrentScoreText: {fileID: 0}
   playerScoreText: {fileID: 0}
   aiScoreText: {fileID: 0}
+  endlessScoreText: {fileID: 0}
   mainMenuCoinText: {fileID: 737379546}
   playerWinReward: 100
   aiWinPenalty: 50
@@ -1010,7 +1013,7 @@ GameObject:
   - component: {fileID: 239028675}
   - component: {fileID: 239028674}
   m_Layer: 5
-  m_Name: 1vs1
+  m_Name: LevelMode
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1080,8 +1083,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 574645607}
-        m_TargetAssemblyTypeName: MenuMenuManager, Assembly-CSharp
-        m_MethodName: StartPlayerVsPlayer
+        m_TargetAssemblyTypeName: MainMenuManager, Assembly-CSharp
+        m_MethodName: StartLevelMode
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1111,7 +1114,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -2706423740567002694, guid: 62ee5a346f65dc64b9b99bcf66d23a5c, type: 3}
+  m_Sprite: {fileID: 8983924359866603001, guid: 296b7d9c880eb8e4f8794175b87fdc80, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1142,7 +1145,7 @@ GameObject:
   - component: {fileID: 243619319}
   - component: {fileID: 243619318}
   m_Layer: 5
-  m_Name: PlayerAI
+  m_Name: EndlessMode
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1212,8 +1215,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 574645607}
-        m_TargetAssemblyTypeName: MenuMenuManager, Assembly-CSharp
-        m_MethodName: StartPlayerVsBot
+        m_TargetAssemblyTypeName: MainMenuManager, Assembly-CSharp
+        m_MethodName: StartEndlessMode
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1243,7 +1246,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 9050882379978366637, guid: 2a866208b5837f4459c5ec26e5997523, type: 3}
+  m_Sprite: {fileID: 1414506638296237939, guid: 39a6a568079d8b54da35a6effc012412, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2462,6 +2465,82 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &510552229
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 510552230}
+  - component: {fileID: 510552233}
+  - component: {fileID: 510552232}
+  m_Layer: 5
+  m_Name: LevelMapPanel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &510552230
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 510552229}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1213217387}
+  m_Father: {fileID: 670003427}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 14.656982, y: -51}
+  m_SizeDelta: {x: 10.502, y: -812.36}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &510552232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 510552229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &510552233
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 510552229}
+  m_CullTransparentMesh: 1
 --- !u!1 &548783621
 GameObject:
   m_ObjectHideFlags: 0
@@ -3037,6 +3116,7 @@ RectTransform:
   - {fileID: 1978057266}
   - {fileID: 94058550}
   - {fileID: 1641785484}
+  - {fileID: 510552230}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -4811,7 +4891,7 @@ MonoBehaviour:
   - Table tennis is one of the most popular indoor sports in the world.
   - Players can impart up to 9000 rpm of spin on a table tennis ball!
   fadeDuration: 1
-  displayDuration: 10
+  displayDuration: 5
 --- !u!224 &892490917
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5915,6 +5995,81 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1196993445}
+  m_CullTransparentMesh: 1
+--- !u!1 &1213217386
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1213217387}
+  - component: {fileID: 1213217389}
+  - component: {fileID: 1213217388}
+  m_Layer: 5
+  m_Name: Image
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1213217387
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1213217386}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 510552230}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.87365896}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 534.73, y: -651.9246}
+  m_SizeDelta: {x: 1069.5, y: 1416.2971}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1213217388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1213217386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 29b1612ebd72c674185fd94c51316fff, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1213217389
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1213217386}
   m_CullTransparentMesh: 1
 --- !u!1 &1215890394
 GameObject:
@@ -8167,8 +8322,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -438}
-  m_SizeDelta: {x: 320, y: 380}
+  m_AnchoredPosition: {x: -23.7446, y: -522.0501}
+  m_SizeDelta: {x: 424.2443, y: 327.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1939185107
 MonoBehaviour:

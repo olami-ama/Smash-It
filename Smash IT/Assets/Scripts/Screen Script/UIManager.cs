@@ -254,7 +254,8 @@ public class UIManager : MonoBehaviour
         }
 
         // Get the player's score from EndlessGameManager
-        int playerScore = EndlessGameManager.Instance.GetPlayerScore();
+        int playerScore = EndlessGameManager.Instance.playerScore;
+
 
         // Get previous high score
         int previousHighScore = PlayerPrefs.GetInt("EndlessHighScore", 0);
@@ -271,18 +272,13 @@ public class UIManager : MonoBehaviour
             endlessCurrentScoreText.text = "Your Score: " + playerScore;
 
         // Coins earned (only IF beat high score)
-        int coinsEarned = 0;
-        if (playerScore > previousHighScore)
-        {
-            coinsEarned = playerScore - previousHighScore;
-            if (endlessCoinsEarnedText != null)
-                endlessCoinsEarnedText.text = "+" + coinsEarned + " Coins!";
-        }
-        else
-        {
-            if (endlessCoinsEarnedText != null)
-                endlessCoinsEarnedText.text = "";
-        }
+        int earned = EndlessGameManager.Instance.GetCoinsEarnedThisRun();
+
+        if (endlessCoinsEarnedText != null && earned > 0)
+            endlessCoinsEarnedText.text = "+" + earned + " Coins!";
+        else if (endlessCoinsEarnedText != null)
+            endlessCoinsEarnedText.text = "";
+
 
         // Show only endless game panel
         ShowOnlyEndlessGamePanel();

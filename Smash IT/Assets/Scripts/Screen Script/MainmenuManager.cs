@@ -50,7 +50,7 @@ public class MainMenuManager : MonoBehaviour
     // Start Endless Mode directly
     public void StartEndlessMode()
     {
-        SceneManager.LoadScene("GameScene"); // Load your reusable game scene
+        SceneManager.LoadScene("EndlessModeScene"); // Load your reusable game scene
         // LevelManager in GameScene will detect that Endless Mode should start
         // You can optionally set a flag in GameSession like:
         // GameSession.GameMode = MatchSettings.GameMode.EndlessMode;

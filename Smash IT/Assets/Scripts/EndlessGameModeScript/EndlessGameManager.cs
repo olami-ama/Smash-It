@@ -153,7 +153,7 @@ public class EndlessGameManager : MonoBehaviour
 
         currentBall = Instantiate(
             ballPrefab,
-            new Vector3(playerPaddle.position.x, -6.1f, 0f),
+            new Vector3(playerPaddle.position.x, -7.1f, 1f),
             Quaternion.identity
         );
     }

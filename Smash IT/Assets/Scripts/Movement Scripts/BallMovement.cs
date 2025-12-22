@@ -3,197 +3,155 @@
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class BallMovement : MonoBehaviour
 {
-    [SerializeField] private float launchSpeed = 10f;
-    public float speedMultiplier = 1f;
+    [Header("Launch Settings")]
+    [SerializeField] public float launchSpeed = 10f;
+    [SerializeField] public float speedMultiplier = 1f;
+
+    [Header("Serve")]
+    [SerializeField] public Transform servePaddle;
+    [SerializeField] public float serveOffset = 0.35f;
 
     private Rigidbody2D rb;
     private Collider2D col;
-    public bool isLaunched = false;
 
-    private float minX, maxX, minY, maxY;
-    private bool boundsInitialized = false;
+    public bool isLaunched;
+    public bool waitingForServe;
 
-    //  set true in inspector to see helpful one-shot logs during serve/collision.
-    public bool debugServeLogs = false;
+    private float minY, maxY;
+    private bool boundsInitialized;
 
-    void Start()
+    void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
+    }
 
-        rb.bodyType = RigidbodyType2D.Kinematic;
-        col.isTrigger = true;
-
+    void Start()
+    {
+        ResetBallPhysics();
         InitializeBounds();
     }
 
-    void InitializeBounds()
+    // -------------------------
+    // PUBLIC API
+    // -------------------------
+    public void SetServePaddle(Transform paddle)
     {
-        GameObject table = GameObject.FindWithTag("Table");
-        if (table != null)
-        {
-            SpriteRenderer sr = table.GetComponent<SpriteRenderer>();
-            if (sr != null)
-            {
-                Bounds b = sr.bounds;
-                float pad = 0.5f;
-                minX = b.min.x + pad; maxX = b.max.x - pad; minY = b.min.y + pad; maxY = b.max.y - pad;
-                boundsInitialized = true;
-                return;
-            }
-        }
-        UseCameraBounds();
+        servePaddle = paddle;
+        waitingForServe = true;
+        isLaunched = false;
+        ResetBallPhysics();
     }
 
-    void UseCameraBounds()
+    public void Launch()
     {
-        Camera cam = Camera.main;
-        if (cam == null)
-        {
-            minX = -10; maxX = 10; minY = -5; maxY = 5;
-            boundsInitialized = true;
+        if (!waitingForServe || servePaddle == null || isLaunched)
             return;
-        }
-        float vertExtent = cam.orthographicSize;
-        float horzExtent = vertExtent * cam.aspect;
-        float pad = 0.5f;
-        minX = -horzExtent + pad; maxX = horzExtent - pad; minY = -vertExtent + pad; maxY = vertExtent - pad;
-        boundsInitialized = true;
-    }
 
-    // Helper: arena center Y (used to decide which side a paddle is on)
-    private float ArenaCenterY()
-    {
-        if (!boundsInitialized) InitializeBounds();
-        return (minY + maxY) * 0.5f;
-    }
-
-    // compute direction based on which side the paddle is on (away from paddle)
-    public void LaunchFromPaddle(Transform paddleTransform)
-    {
-        if (isLaunched || paddleTransform == null) return;
-
-        float arenaCenterY = ArenaCenterY();
-
-        // If paddle is above the arena center => paddle is top side 
-        // If paddle is below the arena center => paddle is bottom side 
-        Vector2 baseDir = (paddleTransform.position.y >= arenaCenterY) ? Vector2.down : Vector2.up;
-
-        // Horizontal bias based on relative x
-        float xOffset = transform.position.x - paddleTransform.position.x;
-        Vector2 dir = (baseDir + new Vector2(xOffset * 0.5f, 0f)).normalized;
-
-        // Nudge away from the paddle to avoid overlap
-        transform.position += (Vector3)(baseDir * 0.12f);
+        float centerY = ArenaCenterY();
+        Vector2 launchDir = servePaddle.position.y >= centerY ? Vector2.down : Vector2.up;
 
         rb.bodyType = RigidbodyType2D.Dynamic;
         col.isTrigger = false;
-        rb.linearVelocity = dir * launchSpeed * speedMultiplier;
+        rb.linearVelocity = launchDir * launchSpeed * speedMultiplier;
+
+        waitingForServe = false;
         isLaunched = true;
-
-        if (debugServeLogs) Debug.Log($"[Ball] Launched from {paddleTransform.name}. paddleY={paddleTransform.position.y:F2} arenaCenterY={arenaCenterY:F2} baseDir={baseDir} finalDir={dir}");
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    // -------------------------
+    // UPDATE
+    // -------------------------
+  public void Update()
     {
-        if (isLaunched) return;
+        if (waitingForServe && servePaddle != null)
+        {
+            float centerY = ArenaCenterY();
+            float dir = servePaddle.position.y >= centerY ? -1f : 1f;
 
-        if (other.CompareTag("Paddle") || other.CompareTag("Paddle2"))
-        {
-            LaunchFromPaddle(other.transform);
-        }
-    }
+            transform.position =
+                servePaddle.position + Vector3.up * serveOffset * dir;
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.collider.CompareTag("Goal"))
-        {
-            if (GameManager.Instance != null) GameManager.Instance.PlayerScores(2);
-            return;
-        }
-        else if (collision.collider.CompareTag("Goalp2"))
-        {
-            if (GameManager.Instance != null) GameManager.Instance.PlayerScores(1);
             return;
         }
 
+        if (!isLaunched) return;
+
+        HandleEndlessBounds();
+    }
+
+    // -------------------------
+    // COLLISIONS
+    // -------------------------
+  public void OnCollisionEnter2D(Collision2D collision)
+    {
         if (!isLaunched || collision.contactCount == 0) return;
 
         Vector2 normal = collision.GetContact(0).normal;
         Vector2 reflected = Vector2.Reflect(rb.linearVelocity, normal);
 
-        if (collision.collider.CompareTag("Paddle") || collision.collider.CompareTag("Paddle2"))
+        if (collision.collider.CompareTag("Paddle") ||
+            collision.collider.CompareTag("Paddle2"))
         {
-            // After calculating reflected velocity...
-            transform.position += (Vector3)(normal * 0.1f); // push slightly away
+            float offset =
+                transform.position.x - collision.collider.transform.position.x;
 
-            // horizontal bias from hit offset
-            float offset = transform.position.x - collision.collider.transform.position.x;
             reflected += new Vector2(offset * 0.5f, 0f);
 
-            // Force the vertical component to point AWAY from the paddle side (use arena center)
-            float arenaCenterY = ArenaCenterY();
-            float desiredAwaySign = (collision.collider.transform.position.y >= arenaCenterY) ? -1f : 1f;
-            if (desiredAwaySign == 0f) desiredAwaySign = 1f;
-            reflected.y = Mathf.Abs(reflected.y) * desiredAwaySign;
+            float centerY = ArenaCenterY();
+            float away =
+                collision.collider.transform.position.y >= centerY ? -1f : 1f;
 
-            if (debugServeLogs) Debug.Log($"[Ball] Paddle hit by {collision.collider.name}. paddleY={collision.collider.transform.position.y:F2} arenaCenterY={arenaCenterY:F2} forcedYSign={desiredAwaySign}");
+            reflected.y = Mathf.Abs(reflected.y) * away;
         }
 
-        float newSpeed = Mathf.Max(reflected.magnitude, launchSpeed * speedMultiplier);
-        rb.linearVelocity = reflected.normalized * newSpeed;
+        rb.linearVelocity =
+            reflected.normalized * Mathf.Max(reflected.magnitude, launchSpeed * speedMultiplier);
     }
 
-    void Update()
+    // -------------------------
+    // ENDLESS MODE CHECKS
+    // -------------------------
+ public void HandleEndlessBounds()
     {
-        if (!isLaunched) return;
+        if (EndlessGameManager.Instance == null) return;
 
-        Vector3 pos = transform.position;
-        Vector2 vel = rb.linearVelocity;
-       
-
-        if (isLaunched && EndlessGameManager.Instance != null)
+        if (transform.position.y >= 7.1f)
         {
-            float aiGoalY = 7.1f;      // top of AI paddle, player scores
-            float playerMissY = -11.1f; // below player paddle,  missed ball
-
-            // Player scores
-            if (transform.position.y >= aiGoalY)
-            {
-                EndlessGameManager.Instance.PlayerScores();
-                Destroy(gameObject); // let manager decide what happens next
-                return;
-            }
-
-
-            // Player misses
-            if (transform.position.y <= playerMissY)
-            {
-                EndlessGameManager.Instance.RegisterMiss();
-                return;
-            }
+            EndlessGameManager.Instance.PlayerScores();
+            Destroy(gameObject);
         }
-
+        else if (transform.position.y <= -11.1f)
+        {
+            EndlessGameManager.Instance.RegisterMiss();
+        }
     }
 
-
-    public void ResetToPaddle()
+    // -------------------------
+    // HELPERS
+    // -------------------------
+   public void ResetBallPhysics()
     {
-        isLaunched = false;
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.linearVelocity = Vector2.zero;
         col.isTrigger = true;
     }
 
-    private void OnDrawGizmos()
+  public void InitializeBounds()
     {
-        // draw a safe box even if bounds not initialized
+        Camera cam = Camera.main;
+        if (!cam) return;
+
+        float vert = cam.orthographicSize;
+        minY = -vert;
+        maxY = vert;
+        boundsInitialized = true;
+    }
+
+    float ArenaCenterY()
+    {
         if (!boundsInitialized) InitializeBounds();
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(new Vector3(minX, minY), new Vector3(maxX, minY));
-        Gizmos.DrawLine(new Vector3(maxX, minY), new Vector3(maxX, maxY));
-        Gizmos.DrawLine(new Vector3(maxX, maxY), new Vector3(minX, maxY));
-        Gizmos.DrawLine(new Vector3(minX, maxY), new Vector3(minX, minY));
+        return (minY + maxY) * 0.5f;
     }
 }
 

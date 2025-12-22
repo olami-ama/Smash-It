@@ -967,6 +967,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5601200825154529117, guid: 3b278a35071144542b00e024d293dfff, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 10.24
+      objectReference: {fileID: 0}
+    - target: {fileID: 5601200825154529117, guid: 3b278a35071144542b00e024d293dfff, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 10.24
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1366,7 +1374,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000061035156, y: 82.45209}
+  m_AnchoredPosition: {x: 0, y: 82.45215}
   m_SizeDelta: {x: 0, y: -780.78}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &528023073
@@ -1549,7 +1557,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &649646749
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2683,6 +2691,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4660240839101277947, guid: e6a3c9cb3c95e0840baca13c60b9c378, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 5.08
+      objectReference: {fileID: 0}
+    - target: {fileID: 4660240839101277947, guid: e6a3c9cb3c95e0840baca13c60b9c378, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 6.86
+      objectReference: {fileID: 0}
     - target: {fileID: 8200943440218386260, guid: e6a3c9cb3c95e0840baca13c60b9c378, type: 3}
       propertyPath: m_Name
       value: Player 1
@@ -3191,10 +3207,10 @@ RectTransform:
   - {fileID: 72856454}
   m_Father: {fileID: 359086159}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0.5, y: 0.478758}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1, y: 94}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: 1, y: 44}
+  m_SizeDelta: {x: 100, y: 66}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1318812050
 MonoBehaviour:
@@ -9202,6 +9218,47 @@ MonoBehaviour:
     - A) Racketball
     - B) Table Tennis
     - C) Paddle Ball
+    correctIndex: 1
+  - question: What is the term for a serve where the ball hits the net but still
+      lands on the opponent's side, resulting in the serve being played again?
+    options:
+    - A) Fault
+    - B) Let
+    - C) Net-out
+    correctIndex: 1
+  - question: Before a service, the ball must be resting on what part of the server's
+      hand?
+    options:
+    - A) The closed fist
+    - B)The open palm
+    - C) The back of the hand
+    correctIndex: 1
+  - question: What was the common name for the game of table tennis before it became
+      widely known as "Ping Pong" or "Table Tennis" in the late 19th/early 20th century?
+    options:
+    - A) Slap Happy
+    - B)Flim Flam
+    - C) Wiff Waff
+    correctIndex: 2
+  - question: Which country is known for having the most world champions in professional
+      table tennis?
+    options:
+    - 'A) Japan '
+    - B) Germany
+    - C) China
+    correctIndex: 2
+  - question: What is the standard diameter of the official table tennis ball?
+    options:
+    - 'A) 38 mm '
+    - ' B) 40 mm '
+    - C) 42 mm
+    correctIndex: 1
+  - question: What is the playing surface of a standard table tennis table usually
+      made of?
+    options:
+    - 'A) Metal or plastic  '
+    - ' B) Wood '
+    - C) Tempered glass
     correctIndex: 1
 --- !u!4 &1855979480
 Transform:

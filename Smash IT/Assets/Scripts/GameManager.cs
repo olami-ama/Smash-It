@@ -3,27 +3,34 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance;
+
     [Header("Match Settings")]
     public MatchSettings matchSettings;
-    public int winningScore = 5; // Used only for Level Mode
+    public int winningScore = 5; // Used for Level Mode
 
-    [Header("Ball Settings")]
+    [Header("Ball & Paddles")]
     public GameObject ballPrefab;
     public Transform playerPaddle;
     public Transform aiPaddle;
 
-    public static GameManager Instance;
-
-    private int playerScore = 0;
-    private int aiScore = 0;
-    private int currentServer = 1;
     private GameObject currentBall;
-    private bool isGameOver = false;
 
-    public int PlayerScore => playerScore; // read-only access for UI
+    private int playerScore;
+    private int aiScore;
+    private bool isGameOver;
 
+    public enum ServerType
+    {
+        Player,
+        AI
+    }
+
+    private ServerType currentServer = ServerType.Player;
 
     private const string ENDLESS_HIGHSCORE_KEY = "EndlessHighScore";
+
+    public int PlayerScore => playerScore;
 
     void Awake()
     {
@@ -33,58 +40,75 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        isGameOver = false;
-        SpawnBall();
-        UIManager.Instance.UpdateScoreUI(playerScore, aiScore);
+        ResetGame();
     }
 
-    public bool IsGameOver() => isGameOver;
-
-    public void PlayerScores(int playerNumber)
+    public bool IsGameOver()
     {
-        
+        return isGameOver;
+    }
 
-        // Existing Level Mode logic below
-        if (playerNumber == 1) playerScore++;
-        else aiScore++;
+    // Called when a goal is scored
+    public void PlayerScores(int scorer)
+    {
+        if (scorer == 1)
+            playerScore++;
+        else
+            aiScore++;
 
         UIManager.Instance.UpdateScoreUI(playerScore, aiScore);
 
-        if (playerScore >= winningScore || aiScore >= winningScore)
+        if (matchSettings.selectedMode == MatchSettings.GameMode.LevelMode)
         {
-            EndGame();
+            if (playerScore >= winningScore || aiScore >= winningScore)
+            {
+                EndGame();
+                return;
+            }
         }
-        else
-        {
-            SwitchServer();
-            SpawnBall();
-        }
+
+        // Winner of the point serves next
+        currentServer = (scorer == 1) ? ServerType.Player : ServerType.AI;
+        SpawnBallForServer();
     }
 
+    void SpawnBallForServer()
+    {
+        if (currentBall != null)
+            Destroy(currentBall);
+
+        currentBall = Instantiate(ballPrefab);
+
+        BallMovement ball = currentBall.GetComponent<BallMovement>();
+        if (ball == null)
+        {
+            Debug.LogError("[GameManager] BallMovement missing on prefab");
+            return;
+        }
+
+        if (currentServer == ServerType.Player)
+            ball.SetServePaddle(playerPaddle);
+        else
+            ball.SetServePaddle(aiPaddle);
+    }
 
     public void EndGame()
     {
         if (isGameOver) return;
         isGameOver = true;
 
-        if (currentBall != null) Destroy(currentBall);
+        if (currentBall != null)
+            Destroy(currentBall);
 
         PlayerType winner = (playerScore > aiScore) ? PlayerType.Player : PlayerType.AI;
         PlayerType loser = (winner == PlayerType.Player) ? PlayerType.AI : PlayerType.Player;
-
-        if (matchSettings == null)
-        {
-            Debug.LogWarning("[GameManager] MatchSettings missing!");
-            UIManager.Instance?.ShowLosePanel();
-            return;
-        }
 
         if (matchSettings.selectedMode == MatchSettings.GameMode.EndlessMode)
         {
             HandleEndlessRewards();
             UIManager.Instance.ShowEndlessGameOver(winner);
         }
-        else if (matchSettings.selectedMode == MatchSettings.GameMode.LevelMode)
+        else
         {
             if (winner == PlayerType.Player)
                 UIManager.Instance.ShowWinPanel(winner, loser, matchSettings.selectedMode);
@@ -93,66 +117,42 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void HandleEndlessRewards()
+    void HandleEndlessRewards()
     {
         int highScore = PlayerPrefs.GetInt(ENDLESS_HIGHSCORE_KEY, 0);
+
         if (playerScore > highScore)
         {
-            int coinsEarned = playerScore - highScore; // 1 coin per point above high score, adjust as needed
+            int coinsEarned = playerScore - highScore;
             CoinManager.Instance?.AddCoins(coinsEarned);
             PlayerPrefs.SetInt(ENDLESS_HIGHSCORE_KEY, playerScore);
             PlayerPrefs.Save();
-            Debug.Log($"[EndlessMode] New High Score! Coins awarded: {coinsEarned}");
-        }
-        else
-        {
-            Debug.Log("[EndlessMode] Score did not surpass high score. No coins awarded.");
         }
     }
 
     public void ResetGame()
     {
-        Debug.Log("[GameManager] Resetting game state...");
         playerScore = 0;
         aiScore = 0;
         isGameOver = false;
 
-        UIManager.Instance?.UpdateScoreUI(playerScore, aiScore);
+        currentServer = ServerType.Player; // Player always serves first
 
-        if (currentBall != null) Destroy(currentBall);
-
-        SpawnBall();
+        UIManager.Instance.UpdateScoreUI(playerScore, aiScore);
+        SpawnBallForServer();
     }
 
-    void SwitchServer() => currentServer = (currentServer == 1) ? 2 : 1;
-
-    void SpawnBall()
+    public void ReplayGame()
     {
-        
-        if (currentBall != null) Destroy(currentBall);
-
-        Transform serverPaddle = (currentServer == 1) ? playerPaddle : aiPaddle;
-        if (serverPaddle == null) return;
-
-        Vector3 spawnPos = serverPaddle.position + ((currentServer == 1) ? Vector3.up : Vector3.down) * 0.6f;
-        currentBall = Instantiate(ballPrefab, spawnPos, Quaternion.identity);
-
-        if (ballPrefab == null)
-        {
-            Debug.LogError("[GameManager] Ball prefab is not assigned!");
-            return;
-        }
-
-        if (playerPaddle == null || aiPaddle == null)
-        {
-            Debug.LogError("[GameManager] Paddle(s) not assigned!");
-            return;
-        }
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    public void ReplayGame() => SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    public void HomeButton() => SceneManager.LoadScene("MainMenu");
+    public void HomeButton()
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
 }
+
 
 
 

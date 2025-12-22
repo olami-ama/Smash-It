@@ -172,8 +172,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   launchSpeed: 10
   speedMultiplier: 1
+  servePaddle: {fileID: 5408327382481457490, guid: 3b278a35071144542b00e024d293dfff, type: 3}
+  serveOffsetY: 0.35
   isLaunched: 0
-  debugServeLogs: 1
+  waitingForServe: 1
 --- !u!114 &7644617604781504394
 MonoBehaviour:
   m_ObjectHideFlags: 0

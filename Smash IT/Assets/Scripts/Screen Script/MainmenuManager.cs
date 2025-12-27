@@ -59,7 +59,7 @@ public class MainMenuManager : MonoBehaviour
     // Start Level Mode → open Level Map inside GameScene
     public void StartLevelMode()
     {
-        SceneManager.LoadScene("GameScene"); // Load the reusable game scene
+        SceneManager.LoadScene("LevelMapScene"); // Load the reusable game scene
         // GameScene should show the Level Map panel immediately
         // You can optionally set a flag like:
         // GameSession.GameMode = MatchSettings.GameMode.LevelMode;

@@ -1,124 +1,126 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 using System.Collections.Generic;
-
+using System;
+using TMPro;
 public class PowerUpSelectUi : MonoBehaviour
 {
-    public static PowerUpSelectUi Instance; // ✅ Added singleton
+    public static PowerUpSelectUi Instance;
+
+    [Serializable]
+    public class PowerUpSlot
+    {
+        public PowerUpType type;
+        public Button button;
+        public TMP_Text countText;
+
+        [HideInInspector] public bool isSelected;
+        [HideInInspector] public int owned;
+    }
+
+    public List<PowerUpSlot> slots = new List<PowerUpSlot>();
+    public int maxSelections = 3;
+
 
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
+        if (Instance != null && Instance != this)
+        {
             Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
     }
 
-    [System.Serializable]
-    public class PowerUpSlot
-    {
-        public string powerUpName;
-        public Button selectButton;
-        public TMP_Text countText;
-        [HideInInspector] public bool selected;
-    }
-
-    [Header("Power-Up Slots (assign manually in Inspector)")]
-    public List<PowerUpSlot> powerUpSlots = new List<PowerUpSlot>();
-
-    [Header("Selection Limit")]
-    public int maxSelections = 3;
-
-    private void OnEnable()
-    {
-        RefreshUI();
-    }
 
     private void Start()
     {
         RefreshUI();
     }
 
+    private void OnEnable()
+    {
+        if (gameObject.activeInHierarchy)
+            RefreshUI();
+    }
+
     public void RefreshUI()
     {
-        foreach (var slot in powerUpSlots)
+        foreach (var slot in slots)
         {
-            if (slot == null || slot.selectButton == null || slot.countText == null)
-                continue;
+            slot.owned = ShopManager.Instance.GetConsumableCount(slot.type);
+            slot.countText.text = slot.owned.ToString();
 
-            int owned = ShopManager.Instance != null ? ShopManager.Instance.GetConsumableCount(slot.powerUpName) : 0;
+            slot.button.onClick.RemoveAllListeners();
+            slot.button.onClick.AddListener(() => OnPowerUpClicked(slot));
 
-            slot.countText.text = owned.ToString();
-            slot.selectButton.interactable = owned > 0;
-            slot.selectButton.image.color = slot.selected ? Color.green : Color.white;
-
-            slot.selectButton.onClick.RemoveAllListeners();
-            slot.selectButton.onClick.AddListener(() => OnPowerUpClicked(slot));
+            slot.isSelected = false;
         }
     }
+
 
     private void OnPowerUpClicked(PowerUpSlot slot)
     {
-        if (slot.selected)
+        // DESELECT
+        if (slot.isSelected)
         {
-            slot.selected = false;
-            slot.selectButton.image.color = Color.white;
+            slot.isSelected = false;
+            slot.owned += 1;
+            slot.countText.text = slot.owned.ToString();
+
+            Debug.Log($"[PowerUpSelectUI] Deselected {slot.type}");
+            return;
         }
-        else
+
+        // MAX LIMIT
+        if (GetSelectedCount() >= maxSelections)
         {
-            if (GetSelectedCount() >= maxSelections)
-            {
-                Debug.Log("Selection limit reached!");
-                return;
-            }
-
-            int owned = ShopManager.Instance.GetConsumableCount(slot.powerUpName);
-            if (owned <= 0)
-            {
-                Debug.Log($"You don't own {slot.powerUpName}!");
-                return;
-            }
-
-            slot.selected = true;
-            slot.selectButton.image.color = Color.green;
+            Debug.Log("[PowerUpSelectUI] Max power-ups selected");
+            return;
         }
+
+        // NO STOCK
+        if (slot.owned <= 0)
+        {
+            Debug.Log($"[PowerUpSelectUI] No {slot.type} available");
+            return;
+        }
+
+        // SELECT
+        slot.isSelected = true;
+        slot.owned -= 1;
+        slot.countText.text = slot.owned.ToString();
+
+        Debug.Log($"[PowerUpSelectUI] Selected {slot.type}");
     }
+
 
     private int GetSelectedCount()
     {
         int count = 0;
-        foreach (var s in powerUpSlots)
-            if (s.selected) count++;
+        foreach (var s in slots)
+            if (s.isSelected) count++;
         return count;
     }
 
-    public void ConfirmAndStartGame(System.Action onConfirmed = null)
+    public void ConfirmAndStartGame(Action onDone)
     {
         MatchSettingsData.selectedPowerUps.Clear();
 
-        foreach (var slot in powerUpSlots)
+        foreach (var slot in slots)
         {
-            if (slot.selected)
-            {
-                MatchSettingsData.selectedPowerUps.Add(slot.powerUpName);
-                ShopManager.Instance.ConsumeItem(slot.powerUpName, 1);
-            }
+            if (!slot.isSelected) continue;
+
+            MatchSettingsData.selectedPowerUps.Add(slot.type);
+            ShopManager.Instance.ConsumeItem(slot.type, 1);
         }
 
-        Debug.Log($"[PowerUpSelectUI] Saved {MatchSettingsData.selectedPowerUps.Count} power-ups for next match.");
+        Debug.Log("[PowerUpSelectUI] Final selection: " +
+            string.Join(", ", MatchSettingsData.selectedPowerUps));
 
-        onConfirmed?.Invoke();
-
-        if (GameManager.Instance != null)
-        {
-            Debug.Log("[PowerUpSelectUI] Starting match inside the same gameplay scene...");
-            GameManager.Instance.ResetGame();
-            gameObject.SetActive(false);
-        }
-        else
-        {
-            Debug.LogWarning("[PowerUpSelectUI] GameManager not found in scene!");
-        }
+        onDone?.Invoke();
     }
+
 }
+

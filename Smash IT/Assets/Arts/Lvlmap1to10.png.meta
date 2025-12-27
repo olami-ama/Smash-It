@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 645fca8d2ba6d5f478d7c4acd292ab5a
+guid: 17cdfb95155da804a961f15b7ebfd639
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5450124637445991560
-    second: Big ball Pu_0
+      213: 5680404846474137161
+    second: Lvlmap1to10_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Big ball Pu_0
+      name: Lvlmap1to10_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 268
-        height: 276
+        width: 1024
+        height: 1536
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 88ca2945b7bb2ab40800000000000000
-      internalID: 5450124637445991560
+      spriteID: 94e8f7e9c1ad4de40800000000000000
+      internalID: 5680404846474137161
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Big ball Pu_0: 5450124637445991560
+      Lvlmap1to10_0: 5680404846474137161
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

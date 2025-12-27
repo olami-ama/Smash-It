@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52277904115eff14893c6fb19fddb026, type: 3}
   m_Name: Big Paddle
   m_EditorClassIdentifier: Assembly-CSharp::ShopItem
-  itemName: BigPaddle
-  cost: 25
-  icon: {fileID: -198999184104578618, guid: e21428e998196c3448c1bea3f4d000f4, type: 3}
+  itemName: Big Paddle
+  cost: 75
   isConsumable: 1
+  powerUpType: 0

@@ -10,12 +10,9 @@ public class MatchSettings : ScriptableObject
         EndlessMode
     }
 
-    // Selected mode for this match
     public GameMode selectedMode;
 
-    // Power-up control
-    public List<PowerUpPickup.PowerUpType> allowedPowerUps = new List<PowerUpPickup.PowerUpType>();
+    public List<PowerUpType> allowedPowerUps = new List<PowerUpType>();
 
     public int maxPowerUps = 3;
 }
-

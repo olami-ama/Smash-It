@@ -4,37 +4,28 @@ using System.Collections.Generic;
 
 public class PowerUpSpawner : MonoBehaviour
 {
-    [Header("Power-Up Prefabs (drag them here)")]
-    public GameObject[] powerUpPrefabs; // All power-up prefabs
+    [Header("Power-Up Prefabs")]
+    public GameObject[] powerUpPrefabs;
 
     [Header("Spawn Timing")]
     public float firstDelay = 3f;
     public float spawnInterval = 10f;
 
     [Header("Spawn Areas")]
-    public BoxCollider2D topArea;
-    public BoxCollider2D bottomArea;
+    public BoxCollider2D TopArea;
 
-    [Header("Limit Settings")]
-    public int maxPowerUps = 4; // maximum allowed in scene at once
+    [Header("Limits")]
+    public int maxPowerUps = 4;
 
-    private bool spawnOnBottom = true;
-
-    void Start()
+    private void Start()
     {
-        if (powerUpPrefabs.Length == 0)
+        if (powerUpPrefabs == null || powerUpPrefabs.Length == 0)
         {
-            Debug.LogWarning("[PowerUpSpawner] No power-up prefabs assigned!");
+            Debug.LogError("[PowerUpSpawner] No prefabs assigned.");
             return;
         }
 
         StartCoroutine(SpawnLoop());
-    }
-
-    void Update()
-    {
-        if (GameManager.Instance != null && GameManager.Instance.IsGameOver())
-            return;  // Stop spawning when game ends
     }
 
     private IEnumerator SpawnLoop()
@@ -43,11 +34,14 @@ public class PowerUpSpawner : MonoBehaviour
 
         while (true)
         {
-            int currentPowerUps = GameObject.FindGameObjectsWithTag("Power up").Length;
+            if (GameManager.Instance != null && GameManager.Instance.IsGameOver())
+                yield break;
 
-            if (currentPowerUps < maxPowerUps)
+            int active = GameObject.FindGameObjectsWithTag("Power up").Length;
+
+            if (active < maxPowerUps)
             {
-                SpawnPowerUp();
+                SpawnPowerUp(); // fixed to use existing method
             }
 
             yield return new WaitForSeconds(spawnInterval);
@@ -56,64 +50,46 @@ public class PowerUpSpawner : MonoBehaviour
 
     private void SpawnPowerUp()
     {
-        var candidates = new List<GameObject>();
-
-        // If the player selected power-ups, only spawn those
-        if (MatchSettingsData.selectedPowerUps != null && MatchSettingsData.selectedPowerUps.Count > 0)
+        if (MatchSettingsData.selectedPowerUps == null ||
+            MatchSettingsData.selectedPowerUps.Count == 0)
         {
-            foreach (var p in powerUpPrefabs)
-            {
-                PowerUpPickup pickup = p.GetComponent<PowerUpPickup>();
-                if (pickup == null)
-                {
-                    Debug.LogWarning($"[Spawner] Prefab {p.name} missing PowerUpPickup script!");
-                    continue;
-                }
-
-                Debug.Log($"[Spawner] Checking prefab {p.name} type {pickup.type} against selected: {string.Join(", ", MatchSettingsData.selectedPowerUps)}");
-
-                if (MatchSettingsData.selectedPowerUps.Contains(pickup.type.ToString()))
-                {
-                    candidates.Add(p);
-                }
-            }
-
-            if (candidates.Count == 0)
-            {
-                Debug.Log("[Spawner] No matching power-ups found from player selection!");
-                return;
-            }
-        }
-        else
-        {
-            Debug.Log("[Spawner] No power-ups selected by player. Skipping spawn.");
-            return; //  Stop here if none were selected
+            Debug.Log("[PowerUpSpawner] No power-ups selected for this match.");
+            return;
         }
 
-        // Pick one randomly
+        List<GameObject> candidates = new List<GameObject>();
+
+        foreach (var p in powerUpPrefabs)
+        {
+            PowerUpPickup pickup = p.GetComponent<PowerUpPickup>();
+            if (pickup == null) continue;
+
+            if (MatchSettingsData.selectedPowerUps.Contains(pickup.powerUpType))
+            {
+                candidates.Add(p);
+            }
+        }
+
+        if (candidates.Count == 0)
+        {
+            Debug.Log("[PowerUpSpawner] No matching power-ups found.");
+            return;
+        }
+
         GameObject prefab = candidates[Random.Range(0, candidates.Count)];
 
-        // Alternate or randomize spawn side
-        BoxCollider2D area = spawnOnBottom ? bottomArea : topArea;
-        spawnOnBottom = !spawnOnBottom;
-
-        Vector3 pos = GetRandomPointInBox(area);
+        // Spawn on the player side only (bottom area)
+        Vector3 pos = GetRandomPoint(TopArea); // use existing GetRandomPoint
         Instantiate(prefab, pos, Quaternion.identity);
-
-        Debug.Log($"[Spawner] Spawned {prefab.name} in {(area == bottomArea ? "Bottom" : "Top")} area at {pos}");
     }
 
-    private Vector3 GetRandomPointInBox(BoxCollider2D box)
+    private Vector3 GetRandomPoint(BoxCollider2D box)
     {
-        if (box == null)
-        {
-            Debug.LogError("[Spawner] Missing BoxCollider2D area reference!");
-            return Vector3.zero;
-        }
-
-        Bounds bounds = box.bounds;
-        float x = Random.Range(bounds.min.x, bounds.max.x);
-        float y = Random.Range(bounds.min.y, bounds.max.y);
-        return new Vector3(x, y, 0f);
+        Bounds b = box.bounds;
+        return new Vector3(
+            Random.Range(b.min.x, b.max.x),
+            Random.Range(b.min.y, b.max.y),
+            0f
+        );
     }
 }

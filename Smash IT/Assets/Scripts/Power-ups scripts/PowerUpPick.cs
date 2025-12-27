@@ -2,80 +2,46 @@ using UnityEngine;
 
 public class PowerUpPickup : MonoBehaviour
 {
-    public enum PowerUpType
+    public PowerUpType powerUpType;
+
+    [Header("Effect Settings")]
+    public float bigPaddleFactor = 1.5f;
+    public float speedBoostFactor = 1.4f;
+    public float effectDuration = 6f;
+
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        BigPaddle,
-        SpeedBoost,
-        SlowBall,
-        Bigball, //  Added slot for Faith
+        if (!collision.CompareTag("Ball")) return;
+
+        ApplyPowerUpToPlayer();
+        Destroy(gameObject);
     }
 
-    public PowerUpType type;
-    public float factor = 1.5f;   // default effect strength
-    public float duration = 5f;   // default duration in seconds
-
-    private void OnTriggerEnter2D(Collider2D other)
+    private void ApplyPowerUpToPlayer()
     {
-        // Debug so you can see what object touched the power-up at runtime
-        Debug.Log($"PowerUp collided with: name='{other.name}' tag='{other.tag}'");
-
-        // ---------- PADDLE POWER-UPS ----------
-        // Only apply paddle power-ups when the colliding object is a paddle (by tag).
-        // Replace or extend these tag checks if you use different tag names.
-        if (type == PowerUpType.BigPaddle || type == PowerUpType.SpeedBoost)
+        GameObject player = GameObject.FindGameObjectWithTag("Paddle");
+        if (player == null)
         {
-            // Check paddle tags. Use CompareTag (fast and null-safe).
-            bool isPaddle = other.CompareTag("Paddle") || other.CompareTag("Paddle2") || other.CompareTag("AI player");
-
-            if (isPaddle)
-            {
-                // Try to find the PowerUpEffect component on the collider object or its parent.
-                PowerUpEffect paddleEffects = other.GetComponent<PowerUpEffect>()
-                                             ?? other.GetComponentInParent<PowerUpEffect>();
-
-                if (paddleEffects != null)
-                {
-                    if (type == PowerUpType.BigPaddle) paddleEffects.ApplyBigPaddle(factor, duration);
-                    if (type == PowerUpType.SpeedBoost) paddleEffects.ApplySpeedBoost(factor, duration);
-
-                    Destroy(gameObject); // only destroy when applied successfully
-                    return; // done
-                }
-                else
-                {
-                    Debug.LogWarning($"PowerUp: expected PowerUpEffect on paddle '{other.name}' but not found.");
-                }
-            }
+            Debug.LogWarning("[PowerUpPickup] Player paddle not found");
+            return;
         }
 
-        // ---------- BALL POWER-UPS ----------
-        // Only apply ball power-ups when the colliding object is the ball (by tag).
-        if (type == PowerUpType.SlowBall || type == PowerUpType.Bigball)
+        PowerUpEffect paddleEffect = player.GetComponent<PowerUpEffect>();
+        BallPowerupEffect ballEffect = FindFirstObjectByType<BallPowerupEffect>();
+
+        switch (powerUpType)
         {
-            if (other.CompareTag("Ball"))
-            {
-                BallPowerupEffect ballEffects = other.GetComponent<BallPowerupEffect>()
-                                             ?? other.GetComponentInParent<BallPowerupEffect>();
+            case PowerUpType.BigPaddle:
+                paddleEffect?.ApplyBigPaddle(bigPaddleFactor, effectDuration);
+                break;
 
-                if (ballEffects != null)
-                {
-                    if (type == PowerUpType.SlowBall) ballEffects.ApplySlowBall(factor, duration);
-                    if (type == PowerUpType.Bigball) ballEffects.ApplyBigball(factor, duration);
+            case PowerUpType.SpeedBoost:
+                paddleEffect?.ApplySpeedBoost(speedBoostFactor, effectDuration);
+                break;
 
-                    Destroy(gameObject);
-                    return;
-                }
-                else
-                {
-                    Debug.LogWarning($"PowerUp: expected BallPowerupEffect on ball '{other.name}' but not found.");
-                }
-            }
+            case PowerUpType.SlowBall:
+                ballEffect?.ApplySlowBall(0.6f, effectDuration);
+                break;
         }
-
-        // If we reach here, nothing matched — useful for debugging
-        Debug.Log($"PowerUp: no effect applied for type={type} on '{other.name}' (tag='{other.tag}')");
     }
-
-
 }
-

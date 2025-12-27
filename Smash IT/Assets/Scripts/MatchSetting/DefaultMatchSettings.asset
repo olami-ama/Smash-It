@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: DefaultMatchSettings
   m_EditorClassIdentifier: 
   selectedMode: 0
-  allowedPowerUps: 00000000030000000200000001000000
+  allowedPowerUps: 000000000200000001000000
   maxPowerUps: 3

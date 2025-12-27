@@ -10,34 +10,44 @@ public class LevelManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
     }
+
     private void Start()
     {
-        // Only load the first level directly
-        LoadLevel(GameSession.CurrentLevelIndex);
+        // When GameplayScene loads, DO NOT start the level.
+        // Just show the confirmation panel for the selected level.
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ShowNextLevelPanelForCurrentLevel();
+        }
     }
 
-
+    // -----------------------------
+    // Load and start gameplay
+    // -----------------------------
     public void LoadLevel(int index)
     {
         if (index < 0 || index >= levelDataList.Count)
         {
-            Debug.LogWarning("[LevelManager] Invalid level index!");
+            Debug.LogWarning("[LevelManager] Invalid level index");
             return;
         }
 
         LevelData data = levelDataList[index];
 
-        Debug.Log($"[LevelManager] Loading Level: {data.levelName}");
+        Debug.Log($"[LevelManager] Starting Level {data.levelNumber}");
 
-        // Configure AI and ball
         var ai = FindFirstObjectByType<AIPaddleMovement>();
-        if (ai != null) ai.moveSpeed = data.aiSpeed;
+        if (ai != null)
+            ai.moveSpeed = data.aiSpeed;
 
         var ball = FindFirstObjectByType<BallMovement>();
-        if (ball != null) ball.speedMultiplier = data.ballSpeed / 8f;
+        if (ball != null)
+            ball.speedMultiplier = data.ballSpeed / 8f;
 
         if (GameManager.Instance != null)
         {
@@ -49,24 +59,33 @@ public class LevelManager : MonoBehaviour
     private int ExtractWinningScoreFromGoal(string goalDescription)
     {
         foreach (var part in goalDescription.Split(' '))
-            if (int.TryParse(part, out int score)) return score;
-        return 5; // fallback
+        {
+            if (int.TryParse(part, out int score))
+                return score;
+        }
+        return 5;
     }
 
-    // Call after player wins
+    // -----------------------------
+    // Called ONLY when player wins
+    // -----------------------------
     public void OnLevelCompleted()
     {
-        Debug.Log($"[LevelManager] Level {GameSession.CurrentLevelIndex} completed.");
+        int currentIndex = GameSession.CurrentLevelIndex;
+        int nextIndex = currentIndex + 1;
 
-        GameSession.AdvanceLevel();
+        Debug.Log($"[LevelManager] Level {currentIndex} completed");
 
-        if (GameSession.CurrentLevelIndex >= levelDataList.Count)
+        if (nextIndex >= levelDataList.Count)
         {
-            Debug.Log("[LevelManager] All levels completed. Returning to main menu.");
             UIManager.Instance?.GoToMainMenu();
             return;
         }
 
-        UIManager.Instance?.ShowNextLevelPanelForCurrentLevel();
+        // IMPORTANT:
+        // Do NOT set CurrentLevelIndex here
+        // Just preview the next level
+        UIManager.Instance?.ShowNextLevelPanelForCurrentLevel(nextIndex);
     }
 }
+

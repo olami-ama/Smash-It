@@ -28,6 +28,8 @@ public class NextLevelPanel : MonoBehaviour
 
         gameObject.SetActive(true);
         isStarting = false; // reset flag
+        Debug.Log("CurrentLevelIndex = " + GameSession.CurrentLevelIndex);
+
     }
 
     public void OnPlayClicked()
@@ -35,31 +37,29 @@ public class NextLevelPanel : MonoBehaviour
         if (isStarting) return;
         isStarting = true;
 
-        PowerUpSelectUi.Instance.ConfirmAndStartGame(() =>
-        {
-            StartSelectedLevel();
-        });
-    }
+        var powerUI = FindFirstObjectByType<PowerUpSelectUi>();
 
-    public void StartSelectedLevel()
-    {
-        if (LevelManager.Instance == null || nextLevelData == null) return;
-
-        // Load the exact level this panel is showing
-        int nextIndex = LevelManager.Instance.levelDataList.IndexOf(nextLevelData);
-        if (nextIndex < 0)
+        if (powerUI == null)
         {
-            Debug.LogWarning("[NextLevelPanel] LevelData not found in LevelManager!");
+            Debug.LogError("PowerUpSelectUi not found in scene!");
             return;
         }
 
-        // Sync CurrentLevelIndex with what we are loading
-        GameSession.SetCurrentLevel(nextIndex);
+        powerUI.ConfirmAndStartGame(StartSelectedLevel);
 
-        Debug.Log($"[NextLevelPanel] Starting level index: {nextIndex}");
-        LevelManager.Instance.LoadLevel(nextIndex);
+       
+    }
+
+
+    public void StartSelectedLevel()
+    {
+        if (LevelManager.Instance == null) return;
+
+        int index = GameSession.CurrentLevelIndex;
+
+        LevelManager.Instance.LoadLevel(index);
 
         gameObject.SetActive(false);
-        isStarting = false;
     }
+
 }

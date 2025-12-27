@@ -159,39 +159,31 @@ public class UIManager : MonoBehaviour
     // -------------------
     public void ShowNextLevelPanelForCurrentLevel()
     {
-        if (LevelManager.Instance == null) return;
-
-        // Only show if CurrentLevelIndex is not the first level
-        if (GameSession.CurrentLevelIndex < 0) return;
-
-        int nextIndex = GameSession.CurrentLevelIndex + 1;
-
-        if (nextIndex >= LevelManager.Instance.levelDataList.Count)
-        {
-            GoToMainMenu();
-            return;
-        }
-
-        LevelData nextLevel = LevelManager.Instance.levelDataList[nextIndex];
-
-        if (nextLevelPanel != null)
-        {
-            nextLevelPanel.SetActive(true);
-
-            var panelComp = nextLevelPanel.GetComponent<NextLevelPanel>();
-            if (panelComp == null)
-                panelComp = nextLevelPanel.GetComponentInChildren<NextLevelPanel>();
-
-            if (panelComp != null)
-            {
-                panelComp.Setup(nextLevel);
-
-                // Hide win panel here
-                if (winPanel != null)
-                    winPanel.SetActive(false);
-            }
-        }
+        ShowNextLevelPanelForCurrentLevel(GameSession.CurrentLevelIndex);
     }
+
+    public void ShowNextLevelPanelForCurrentLevel(int previewIndex)
+    {
+        if (nextLevelPanel == null) return;
+
+        if (previewIndex < 0 || previewIndex >= LevelManager.Instance.levelDataList.Count)
+            return;
+
+        nextLevelPanel.SetActive(true);
+
+        var panelComp = nextLevelPanel.GetComponent<NextLevelPanel>();
+        if (panelComp == null)
+            panelComp = nextLevelPanel.GetComponentInChildren<NextLevelPanel>();
+
+        if (panelComp == null) return;
+
+        panelComp.Setup(LevelManager.Instance.levelDataList[previewIndex]);
+
+        if (winPanel != null)
+            winPanel.SetActive(false);
+    }
+
+
 
 
 

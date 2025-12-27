@@ -1,19 +1,21 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
+
 
 public class ShopManager : MonoBehaviour
 {
-    public static ShopManager Instance;  // Singleton for global access
+    public static ShopManager Instance;
 
     [Header("Available Shop Items")]
-    public List<ShopItem> shopItems = new List<ShopItem>(); // All power-ups or items in the shop
+    public List<ShopItem> shopItems = new List<ShopItem>();
 
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // ensures ShopManager persists between scenes
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -21,84 +23,105 @@ public class ShopManager : MonoBehaviour
         }
     }
 
-
-    // Add coins when player earns them
+    // ------------------------
+    // COINS
+    // ------------------------
     public void AddCoins(int amount)
     {
         CoinManager.Instance.AddCoins(amount);
     }
 
-    // Spend coins when buying items
     public bool SpendCoins(int cost)
     {
         return CoinManager.Instance.SpendCoins(cost);
     }
 
-    // Buy an item (consumable or permanent)
+    // ------------------------
+    // BUY ITEM
+    // ------------------------
     public void BuyItem(ShopItem item, int quantity = 1)
     {
         if (item == null) return;
 
         int totalCost = item.cost * quantity;
 
-        // Check if player has enough coins
         if (!SpendCoins(totalCost))
         {
-            Debug.Log($"[ShopManager] Not enough coins to buy {item.itemName}!");
+            Debug.Log($"[ShopManager] Not enough coins to buy {item.itemName}");
             return;
         }
 
-        // Handle consumables (can have multiple)
         if (item.isConsumable)
         {
-            int current = PlayerPrefs.GetInt(item.itemName + "_Owned", 0);
-            PlayerPrefs.SetInt(item.itemName + "_Owned", current + quantity);
+            AddConsumable(item.powerUpType, quantity);
         }
         else
         {
-            // Permanents can only be bought once
-            PlayerPrefs.SetInt(item.itemName + "_Owned", 1);
+            // Permanent item (owned once)
+            PlayerPrefs.SetInt(GetKey(item.powerUpType), 1);
         }
 
-        PlayerPrefs.Save();
-        Debug.Log($"[ShopManager] Bought {quantity}x {item.itemName}. Total now: {GetConsumableCount(item.itemName)}");
 
-        RefreshAllItemsUI(); // Refresh UI display
+        PlayerPrefs.Save();
+        RefreshAllItemsUI();
     }
 
-    // Deduct consumables when used
-    public void ConsumeItem(string itemName, int amount = 1)
+    // ------------------------
+    // CONSUMABLE LOGIC (ENUM BASED)
+    // ------------------------
+    private string GetKey(PowerUpType type)
     {
-        int current = PlayerPrefs.GetInt(itemName + "_Owned", 0);
+        return type.ToString() + "_Owned";
+    }
+
+    public int GetConsumableCount(PowerUpType type)
+    {
+        return PlayerPrefs.GetInt(type.ToString() + "_Owned", 0);
+    }
+
+
+    public void AddConsumable(PowerUpType type, int amount)
+    {
+        int current = GetConsumableCount(type);
+        PlayerPrefs.SetInt(GetKey(type), current + amount);
+        PlayerPrefs.Save();
+
+        Debug.Log($"[ShopManager] Added {amount}x {type}. Total: {current + amount}");
+    }
+
+    public void ConsumeItem(PowerUpType type, int amount = 1)
+    {
+        string key = type.ToString() + "_Owned";
+
+        int current = PlayerPrefs.GetInt(key, 0);
         current = Mathf.Max(0, current - amount);
-        PlayerPrefs.SetInt(itemName + "_Owned", current);
+        PlayerPrefs.SetInt(key, current);
         PlayerPrefs.Save();
 
-        Debug.Log($"[ShopManager] Consumed {amount}x {itemName}. Remaining: {current}");
-        RefreshAllItemsUI(); // Update shop display
-    }
+        StartCoroutine(RefreshNextFrame());
 
-    // Get how many of a consumable the player owns
-    public int GetConsumableCount(string itemName)
+    }
+    private IEnumerator RefreshNextFrame()
     {
-        return PlayerPrefs.GetInt(itemName + "_Owned", 0);
+        yield return null; // wait one frame
+        RefreshAllItemsUI();
     }
 
 
+    // ------------------------
+    // UI REFRESH
+    // ------------------------
     public void RefreshAllItemsUI()
     {
         foreach (var ui in FindObjectsByType<ShopUiItem>(FindObjectsSortMode.None))
         {
             if (ui.item != null)
             {
-                int owned = GetConsumableCount(ui.item.itemName);
+                int owned = GetConsumableCount(ui.item.powerUpType);
                 ui.UpdateOwnedText(owned);
             }
         }
 
-        Canvas.ForceUpdateCanvases(); //  force immediate UI refresh
-        Debug.Log("[ShopManager] Refreshed all shop item displays.");
+        Canvas.ForceUpdateCanvases();
     }
-
-
 }

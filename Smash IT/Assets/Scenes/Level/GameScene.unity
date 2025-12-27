@@ -1146,6 +1146,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5601200825154529117, guid: 3b278a35071144542b00e024d293dfff, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 10.24
+      objectReference: {fileID: 0}
+    - target: {fileID: 5601200825154529117, guid: 3b278a35071144542b00e024d293dfff, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 10.24
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1479,19 +1487,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35d35b89a89167d418307ed5ed4098f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PowerUpSelectUi
-  powerUpSlots:
-  - powerUpName: Big Paddle
-    selectButton: {fileID: 217051832}
+  slots:
+  - type: 0
+    button: {fileID: 217051832}
     countText: {fileID: 916054385}
-    selected: 0
-  - powerUpName: Slow Ball
-    selectButton: {fileID: 539370041}
+    isSelected: 0
+    owned: 0
+  - type: 1
+    button: {fileID: 539370041}
     countText: {fileID: 115943597}
-    selected: 0
-  - powerUpName: Speed Boost
-    selectButton: {fileID: 742576581}
+    isSelected: 0
+    owned: 0
+  - type: 2
+    button: {fileID: 742576581}
     countText: {fileID: 1440247332}
-    selected: 0
+    isSelected: 0
+    owned: 0
   maxSelections: 3
 --- !u!1 &718570325
 GameObject:
@@ -2784,6 +2795,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4660240839101277947, guid: e6a3c9cb3c95e0840baca13c60b9c378, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 5.09
+      objectReference: {fileID: 0}
+    - target: {fileID: 4660240839101277947, guid: e6a3c9cb3c95e0840baca13c60b9c378, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 6.86
+      objectReference: {fileID: 0}
     - target: {fileID: 8200943440218386260, guid: e6a3c9cb3c95e0840baca13c60b9c378, type: 3}
       propertyPath: m_Name
       value: Player 1
@@ -2968,13 +2987,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   powerUpPrefabs:
   - {fileID: 2480073808733035197, guid: 397611be974a64944992b787644d1de3, type: 3}
-  - {fileID: 2480073808733035197, guid: 5e6fca3cf0785dd40a61992008e90cf2, type: 3}
   - {fileID: 2480073808733035197, guid: 4983fa0d4a9ad6f4ab99c5577f34bc98, type: 3}
   - {fileID: 2480073808733035197, guid: a941bfa0a71d09a42aca05844cf650f7, type: 3}
   firstDelay: 3
   spawnInterval: 5
-  topArea: {fileID: 1361879630}
-  bottomArea: {fileID: 1841759708}
+  TopArea: {fileID: 1361879630}
   maxPowerUps: 3
 --- !u!4 &1243966838
 Transform:
@@ -9400,84 +9417,6 @@ MonoBehaviour:
   levelNameText: {fileID: 1909846645}
   goalText: {fileID: 1124872178}
   playButton: {fileID: 1333956707}
---- !u!1 &1841759707
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1841759709}
-  - component: {fileID: 1841759708}
-  m_Layer: 0
-  m_Name: SpawnArea 2
-  m_TagString: SpawnArea2
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!61 &1841759708
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1841759707}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: -0.07444072, y: -1.687346}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 9.883371, y: 5.4665003}
-  m_EdgeRadius: 0
---- !u!4 &1841759709
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1841759707}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.3625, y: 2.5112, z: -0.72}
-  m_LocalScale: {x: 0.7713, y: 0.8532, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1880692225
 GameObject:
   m_ObjectHideFlags: 0
@@ -15547,7 +15486,6 @@ SceneRoots:
   - {fileID: 245329128}
   - {fileID: 1359639361}
   - {fileID: 1361879631}
-  - {fileID: 1841759709}
   - {fileID: 627439406}
   - {fileID: 1243966838}
   - {fileID: 36476206}

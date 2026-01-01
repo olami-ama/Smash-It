@@ -16,6 +16,10 @@ public class BallMovement : MonoBehaviour
 
     public bool launched;
 
+    [Header("Endless Mode Goal Lines")]
+    private const float ENDLESS_TOP_GOAL_Y = 7.5f;     // AI side (+Y)
+    private const float ENDLESS_BOTTOM_GOAL_Y = -12.5f; // Player side (-Y)
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -65,21 +69,28 @@ public class BallMovement : MonoBehaviour
                 Destroy(gameObject);
             }
         }
-
         // ENDLESS MODE
         if (EndlessGameManager.Instance != null)
         {
-            if (transform.position.y > topGoalY)
-            {
-                EndlessGameManager.Instance.RegisterMiss();
-                Destroy(gameObject);
-            }
-            else if (transform.position.y < bottomGoalY)
+            // Player scores (ball passes AI side, top +Y)
+            if (transform.position.y > ENDLESS_TOP_GOAL_Y)
             {
                 EndlessGameManager.Instance.PlayerScores();
                 Destroy(gameObject);
+                return;
+            }
+
+            // Player misses (ball passes player side, bottom -Y)
+            if (transform.position.y < ENDLESS_BOTTOM_GOAL_Y)
+            {
+                EndlessGameManager.Instance.RegisterMiss();
+                Destroy(gameObject);
+                return;
             }
         }
+
+
+
     }
 
     // -------------------------

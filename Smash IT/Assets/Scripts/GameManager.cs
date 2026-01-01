@@ -16,8 +16,8 @@ public class GameManager : MonoBehaviour
 
     private GameObject currentBall;
 
-    private int playerScore;
-    private int aiScore;
+    public int playerScore;
+    public int aiScore;
     private bool isGameOver;
 
     public enum ServerType
@@ -86,11 +86,12 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (currentServer == ServerType.Player)
-            ball.SetServePaddle(playerPaddle);
-        else
-            ball.SetServePaddle(aiPaddle);
+        Transform server =
+            currentServer == ServerType.Player ? playerPaddle : aiPaddle;
+
+        ball.ServeFromPaddle(server);
     }
+
 
     public void EndGame()
     {

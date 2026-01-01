@@ -2382,6 +2382,8 @@ MonoBehaviour:
   ballPrefab: {fileID: 7485524808894644554, guid: ac4dbbd1313d80a48903bbc525ce762a, type: 3}
   playerPaddle: {fileID: 103289542}
   aiPaddle: {fileID: 845968597}
+  playerScore: 0
+  aiScore: 0
 --- !u!4 &968802079
 Transform:
   m_ObjectHideFlags: 0
@@ -2543,6 +2545,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1055432743}
   - component: {fileID: 1055432742}
+  - component: {fileID: 1055432744}
   m_Layer: 0
   m_Name: wall_down
   m_TagString: Goal
@@ -2611,6 +2614,33 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1359639361}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!50 &1055432744
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1055432741}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &1084340307
 GameObject:
   m_ObjectHideFlags: 0
@@ -2757,11 +2787,11 @@ PrefabInstance:
       objectReference: {fileID: 627439406}
     - target: {fileID: 410360330922817223, guid: e6a3c9cb3c95e0840baca13c60b9c378, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.9406433
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 410360330922817223, guid: e6a3c9cb3c95e0840baca13c60b9c378, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -8.58
+      value: -8.2
       objectReference: {fileID: 0}
     - target: {fileID: 410360330922817223, guid: e6a3c9cb3c95e0840baca13c60b9c378, type: 3}
       propertyPath: m_LocalPosition.z
@@ -8708,6 +8738,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3ab3f54a3303ae64aaaab8a7cf3df096, type: 2}
   - {fileID: 11400000, guid: 346e37792d6f9654dbace7233934f11e, type: 2}
   - {fileID: 11400000, guid: 2b41bac6eac0b6249a5429e6ec7894d0, type: 2}
+  - {fileID: 11400000, guid: 7b39ce0ac2723e345b99aead8dd05c54, type: 2}
+  - {fileID: 11400000, guid: a21e4df2540cb8c4aaef2226a6b11ebb, type: 2}
+  - {fileID: 11400000, guid: c7852249894d8d847bff374d0a0cefd8, type: 2}
+  - {fileID: 11400000, guid: 38454e06d18f20e45ad430fa163b83ca, type: 2}
+  - {fileID: 11400000, guid: 902cd55139ef9e34789669cb8566e81f, type: 2}
 --- !u!4 &1582166175
 Transform:
   m_ObjectHideFlags: 0
@@ -9325,7 +9360,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1822998092
 RectTransform:
   m_ObjectHideFlags: 0

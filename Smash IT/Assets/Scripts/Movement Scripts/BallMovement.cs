@@ -3,89 +3,91 @@
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class BallMovement : MonoBehaviour
 {
-    [Header("Launch Settings")]
-    [SerializeField] public float launchSpeed = 10f;
-    [SerializeField] public float speedMultiplier = 1f;
+    [Header("Speed")]
+    public float launchSpeed = 10f;
+    public float speedMultiplier = 1f;
 
-    [Header("Serve")]
-    [SerializeField] public Transform servePaddle;
-    [SerializeField] public float serveOffset = 0.35f;
+    [Header("Goal Lines")]
+    public float topGoalY = 7.2f;
+    public float bottomGoalY = -7.2f;
 
     private Rigidbody2D rb;
     private Collider2D col;
 
-    public bool isLaunched;
-    public bool waitingForServe;
-
-    private float minY, maxY;
-    private bool boundsInitialized;
+    public bool launched;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
+
+        rb.gravityScale = 0f;
+        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
     }
 
     void Start()
     {
-        ResetBallPhysics();
-        InitializeBounds();
-    }
-
-    // -------------------------
-    // PUBLIC API
-    // -------------------------
-    public void SetServePaddle(Transform paddle)
-    {
-        servePaddle = paddle;
-        waitingForServe = true;
-        isLaunched = false;
-        ResetBallPhysics();
-    }
-
-    public void Launch()
-    {
-        if (!waitingForServe || servePaddle == null || isLaunched)
-            return;
-
-        float centerY = ArenaCenterY();
-        Vector2 launchDir = servePaddle.position.y >= centerY ? Vector2.down : Vector2.up;
-
         rb.bodyType = RigidbodyType2D.Dynamic;
-        col.isTrigger = false;
-        rb.linearVelocity = launchDir * launchSpeed * speedMultiplier;
+    }
 
-        waitingForServe = false;
-        isLaunched = true;
+    // -------------------------
+    // SERVE
+    // -------------------------
+    public void ServeFromPaddle(Transform paddle)
+    {
+        Vector3 pos = paddle.position;
+        float dir = paddle.position.y > 0f ? -1f : 1f;
+
+        transform.position = pos + Vector3.up * 0.6f * dir;
+
+        rb.linearVelocity = Vector2.up * dir * launchSpeed * speedMultiplier;
+        launched = true;
     }
 
     // -------------------------
     // UPDATE
     // -------------------------
-  public void Update()
+    void Update()
     {
-        if (waitingForServe && servePaddle != null)
+        if (!launched) return;
+
+        // LEVEL MODE
+        if (GameManager.Instance != null && !GameManager.Instance.IsGameOver())
         {
-            float centerY = ArenaCenterY();
-            float dir = servePaddle.position.y >= centerY ? -1f : 1f;
-
-            transform.position =
-                servePaddle.position + Vector3.up * serveOffset * dir;
-
-            return;
+            if (transform.position.y > topGoalY)
+            {
+                GameManager.Instance.PlayerScores(1);
+                Destroy(gameObject);
+            }
+            else if (transform.position.y < bottomGoalY)
+            {
+                GameManager.Instance.PlayerScores(2);
+                Destroy(gameObject);
+            }
         }
 
-        if (!isLaunched) return;
-
-        HandleEndlessBounds();
+        // ENDLESS MODE
+        if (EndlessGameManager.Instance != null)
+        {
+            if (transform.position.y > topGoalY)
+            {
+                EndlessGameManager.Instance.RegisterMiss();
+                Destroy(gameObject);
+            }
+            else if (transform.position.y < bottomGoalY)
+            {
+                EndlessGameManager.Instance.PlayerScores();
+                Destroy(gameObject);
+            }
+        }
     }
 
     // -------------------------
-    // COLLISIONS
+    // COLLISION
     // -------------------------
-  public void OnCollisionEnter2D(Collision2D collision)
+    void OnCollisionEnter2D(Collision2D collision)
     {
-        if (!isLaunched || collision.contactCount == 0) return;
+        if (!launched || collision.contactCount == 0) return;
 
         Vector2 normal = collision.GetContact(0).normal;
         Vector2 reflected = Vector2.Reflect(rb.linearVelocity, normal);
@@ -96,62 +98,10 @@ public class BallMovement : MonoBehaviour
             float offset =
                 transform.position.x - collision.collider.transform.position.x;
 
-            reflected += new Vector2(offset * 0.5f, 0f);
-
-            float centerY = ArenaCenterY();
-            float away =
-                collision.collider.transform.position.y >= centerY ? -1f : 1f;
-
-            reflected.y = Mathf.Abs(reflected.y) * away;
+            reflected.x += offset * 4f;
         }
 
-        rb.linearVelocity =
-            reflected.normalized * Mathf.Max(reflected.magnitude, launchSpeed * speedMultiplier);
-    }
-
-    // -------------------------
-    // ENDLESS MODE CHECKS
-    // -------------------------
- public void HandleEndlessBounds()
-    {
-        if (EndlessGameManager.Instance == null) return;
-
-        if (transform.position.y >= 7.1f)
-        {
-            EndlessGameManager.Instance.PlayerScores();
-            Destroy(gameObject);
-        }
-        else if (transform.position.y <= -11.1f)
-        {
-            EndlessGameManager.Instance.RegisterMiss();
-        }
-    }
-
-    // -------------------------
-    // HELPERS
-    // -------------------------
-   public void ResetBallPhysics()
-    {
-        rb.bodyType = RigidbodyType2D.Kinematic;
-        rb.linearVelocity = Vector2.zero;
-        col.isTrigger = true;
-    }
-
-  public void InitializeBounds()
-    {
-        Camera cam = Camera.main;
-        if (!cam) return;
-
-        float vert = cam.orthographicSize;
-        minY = -vert;
-        maxY = vert;
-        boundsInitialized = true;
-    }
-
-    float ArenaCenterY()
-    {
-        if (!boundsInitialized) InitializeBounds();
-        return (minY + maxY) * 0.5f;
+        rb.linearVelocity = reflected.normalized * rb.linearVelocity.magnitude;
     }
 }
 

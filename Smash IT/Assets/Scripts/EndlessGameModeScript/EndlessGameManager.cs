@@ -151,11 +151,12 @@ public class EndlessGameManager : MonoBehaviour
     {
         if (ballPrefab == null || playerPaddle == null) return;
 
-        currentBall = Instantiate(
-            ballPrefab,
-            new Vector3(playerPaddle.position.x, -7.1f, 1f),
-            Quaternion.identity
-        );
+        currentBall = Instantiate(ballPrefab);
+        BallMovement ball = currentBall.GetComponent<BallMovement>();
+        ball.ServeFromPaddle(playerPaddle);
+       
+
+
     }
 
     void EndGame()

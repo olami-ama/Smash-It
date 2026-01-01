@@ -27,8 +27,8 @@ public class AIPaddleMovement : MonoBehaviour
     private Vector2 physicsTargetPosition;
     private bool loggedFoundBall = false;
 
-    private float reactionDelay = 0.5f;
-    private float nextMoveTime = 0f;
+   // private float reactionDelay = 0.5f;
+   // private float nextMoveTime = 0f;
 
     void Awake()
     {
@@ -37,32 +37,20 @@ public class AIPaddleMovement : MonoBehaviour
         physicsTargetPosition = aiRb.position;
     }
 
-    void Update()
-    {
-        if (Time.time < nextMoveTime) return;
-
-        if (GameManager.Instance != null && GameManager.Instance.IsGameOver())
-            return;
-
-        FindBallIfNeeded();
-
-        if (ballTransform == null || ballMovement == null)
-            return;
-
-        // -------------------------
-        // SERVE STATE
-        // -------------------------
-        if (!ballMovement.isLaunched)
+  
+        void Update()
         {
-            HandleServeMovement();
-            return;
+            if (GameManager.Instance != null && GameManager.Instance.IsGameOver())
+                return;
+
+            FindBallIfNeeded();
+
+            if (ballTransform == null || ballRb == null)
+                return;
+
+            HandleFollowMovement();
         }
 
-        // -------------------------
-        // FOLLOW STATE
-        // -------------------------
-        HandleFollowMovement();
-    }
 
     void FixedUpdate()
     {
@@ -94,27 +82,7 @@ public class AIPaddleMovement : MonoBehaviour
         }
     }
 
-    // -------------------------
-    // SERVE LOGIC
-    // -------------------------
-    void HandleServeMovement()
-    {
-        float targetX = Mathf.Clamp(ballTransform.position.x, leftLimit, rightLimit);
-        Vector3 targetPos = new Vector3(targetX, transform.position.y, transform.position.z);
-
-        Vector3 smoothed = Vector3.Lerp(transform.position, targetPos, smoothness * Time.deltaTime);
-        physicsTargetPosition = ClampToBounds(smoothed);
-
-        float dist = Vector2.Distance(ballTransform.position, aiRb.position);
-
-        if (dist < serveDistance)
-        {
-            if (debugVerbose) Debug.Log("[AI] Serving ball");
-            ballMovement.SetServePaddle(transform);
-            ballMovement.Launch();
-            nextMoveTime = Time.time + reactionDelay;
-        }
-    }
+   
 
     // -------------------------
     // FOLLOW LOGIC

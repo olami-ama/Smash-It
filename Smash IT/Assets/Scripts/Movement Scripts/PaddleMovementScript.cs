@@ -143,6 +143,7 @@ public class PaddleMovementScript : MonoBehaviour
         // Apply new position
         transform.position = desiredPos;
 
+       
         // ------------------------------
         // Debug Midline  (visible in Game View)
         // ------------------------------
@@ -152,6 +153,8 @@ public class PaddleMovementScript : MonoBehaviour
             Color.red
         );
     }
+
+   
 }
 
 /*using UnityEngine;

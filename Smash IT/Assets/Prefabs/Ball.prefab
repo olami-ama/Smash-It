@@ -139,7 +139,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7485524808894644554}
-  m_BodyType: 1
+  m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -172,10 +172,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   launchSpeed: 10
   speedMultiplier: 1
-  servePaddle: {fileID: 5408327382481457490, guid: 3b278a35071144542b00e024d293dfff, type: 3}
-  serveOffsetY: 0.35
+  servePaddle: {fileID: 0}
+  serveOffset: 0.35
+  topGoalY: 5.2
+  bottomGoalY: -8.2
+  sideLimitX: 9
   isLaunched: 0
-  waitingForServe: 1
 --- !u!114 &7644617604781504394
 MonoBehaviour:
   m_ObjectHideFlags: 0
